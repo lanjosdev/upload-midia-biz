@@ -8,6 +8,9 @@ use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Symfony\Component\Process\Process;
+
 
 class UploadMediaController extends Controller
 {
@@ -32,46 +35,76 @@ class UploadMediaController extends Controller
 
             if ($validatedData) {
 
-                $infoUsers = User::where('email', $user->email)
+                $infoUsersLocationUf = User::where('email', $user->email)
                     ->first();
 
-                if ($infoUsers) {
-                    if ($infoUsers->fk_region_id == 1) {
-                        $infoUsers = 'CE';
-                    } elseif ($infoUsers->fk_region_id == 2) {
-                        $infoUsers = 'PE';
-                        # code...
+                if ($infoUsersLocationUf) {
+                    if ($infoUsersLocationUf->fk_region_id == 1) {
+                        $infoUsersLocationUf = 'CE';
+                    } elseif ($infoUsersLocationUf->fk_region_id == 2) {
+                        $infoUsersLocationUf = 'PE';
                     } else {
-                        $infoUsers = 'RJ';
+                        $infoUsersLocationUf = 'RJ';
                     }
                 }
-                
-                dd($request->file('video')['originalName']);
 
+                $video = $request->file('video');
+
+                $extension = $video->getClientOriginalExtension();
                 $date = now()->format('d-m-Y_H-i-s');
-                $path = $infoUsers . '_' . $date;
+                $fileName = $infoUsersLocationUf . '_' . $date . '_' . uniqid() . '.' . $extension;
 
-                dd($path);
+                $destinationPathOriginal = public_path('videos' . DIRECTORY_SEPARATOR . 'original');
+                $destinationPath1080 = public_path('videos/videos_1080');
+                $destinationPath320 = public_path('videos/videos_320');
 
-                // Salvar vídeo original
-                $original = $request->file('video')->store('videos/original');
-                dd($original);
-                // Caminhos
-                $originalPath = storage_path('app/' . $original);
-                $cortadoPath = storage_path('app/videos/cortado.mp4');
-                $comMolduraPath = storage_path('app/videos/com_moldura.mp4');
-                $molduraPath = public_path('moldura.png');
+                foreach ([$destinationPathOriginal, $destinationPath1080, $destinationPath320] as $path) {
+                    if (!File::exists($path)) {
+                        File::makeDirectory($path, 0775, true);
+                    }
+                }
 
-                // Cortar os primeiros 10 segundos
-                exec("ffmpeg -i {$originalPath} -t 10 -c copy {$cortadoPath}");
+                // $originalPath = $destinationPathOriginal . '/' . $fileName;
+                $originalPath = $destinationPathOriginal . DIRECTORY_SEPARATOR . $fileName;
+                $video->move($destinationPathOriginal, $fileName);
+
+                $ffprobePath = 'C:\\ffmpeg\\ffmpeg-master-latest-win64-gpl-shared\\bin\\ffprobe.exe';
+                $cmdGetDuration = "$ffprobePath -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"$originalPath\" 2>&1";
+
+                $duration = shell_exec($cmdGetDuration);
+                $duration = floatval(trim($duration));
+
+                $duration = floatval(shell_exec($cmdGetDuration));
+
+                if ($duration < 10) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'O vídeo precisa ter no mínimo 10 segundos.',
+                    ]);
+                }
+
+                //cortar para 10 segundos
+                $trimmedPath = $destinationPathOriginal . '/trimmed_' . $fileName;
+                $cmdTrim = "ffmpeg -y -i \"$originalPath\" -t 10 -c copy \"$trimmedPath\"";
+                shell_exec($cmdTrim);
+
 
                 // Adicionar moldura
-                exec("ffmpeg -i {$cortadoPath} -i {$molduraPath} -filter_complex \"overlay=0:0\" {$comMolduraPath}");
+                $molduraPath = public_path('Fortal.png');
+                $withFramePath = $destinationPathOriginal . '/framed_' . $fileName;
+                $cmdFrame = "ffmpeg -y -i \"$trimmedPath\" -i \"$molduraPath\" -filter_complex \"[0:v][1:v] overlay=0:0\" -c:a copy \"$withFramePath\"";
+                shell_exec($cmdFrame);
+
+                //gerar resoluções
+                $cmd1080 = "ffmpeg -y -i \"$withFramePath\" -vf scale=1080:1920 \"$destinationPath1080/$fileName\"";
+                $cmd320 = "ffmpeg -y -i \"$withFramePath\" -vf scale=320:480 \"$destinationPath320/$fileName\"";
+
+                shell_exec($cmd1080);
+                shell_exec($cmd320);
 
                 return response()->json([
-                    'original' => asset('storage/' . $original),
-                    'cortado' => asset('storage/videos/cortado.mp4'),
-                    'com_moldura' => asset('storage/videos/com_moldura.mp4'),
+                    'success' => true,
+                    'message' => 'Vídeo processado com sucesso.'
                 ]);
             }
         } catch (QueryException $qe) {
