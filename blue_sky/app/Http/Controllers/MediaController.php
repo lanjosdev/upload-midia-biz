@@ -46,8 +46,6 @@ class MediaController extends Controller
                     }
                 }
                 
-                dd($request->file('video')['originalName']);
-
                 $date = now()->format('d-m-Y_H-i-s');
                 $path = $infoUsers . '_' . $date;
 
