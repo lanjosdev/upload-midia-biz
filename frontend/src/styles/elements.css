@@ -1,0 +1,436 @@
+/* body:has(.Modal) {
+    @media (max-width: 520px) {
+        overflow-y: hidden;
+    }
+} */
+
+/* GRID LAYOUT */
+.grid {
+    width: 100%;
+    max-width: 1080px;
+
+    margin: 0 auto;
+}
+/* GRID LAYOUT-FIM */
+
+
+/* TIPOGRAFIA */
+.txt_capitalize {
+    text-transform: capitalize;
+}
+
+.txt_emphasis {
+    font-weight: 500;
+
+    &.danger {
+        color: var(--color-danger);
+    }
+    &.bold {
+        font-weight: 700;
+    }
+}
+
+.link_animate {
+    position: relative;
+    /* border: 1px solid red; */
+    max-width: fit-content;
+
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+
+    color: var(--color-primary);
+    font-weight: 600;
+
+    transition: all .3s ease;
+
+    > i {
+        font-size: 1.8rem;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        background-color: var(--color-primary);
+        width: 0;
+        height: 0.18rem;
+        left: 0;
+        bottom: 0;
+
+        transition: all .3s ease-in-out;
+    }
+
+    &:hover {
+        transform: scale(1.02);
+    }
+    &:hover::after {
+        width: 100%;
+    }
+}
+/* TIPOGRAFIA-FIM */
+
+
+
+/* ESTADOS  */
+.hidden {
+    visibility: hidden;
+}
+.none {
+    display: none;
+}
+
+
+.loader {
+    min-width: 17px;
+    height: 17px;
+    border: 2px solid var(--color-w);
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+.loader_black {
+    width: 17px;
+    height: 17px;
+    border: 2px solid var(--color-b);
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+.loading_route {
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .loader, 
+    .loader_black {
+        width: 10rem;
+        height: 10rem;
+    }
+    img {
+        max-width: 80px;
+        animation: rotation 1.5s linear infinite;
+    }
+}
+/* ESTADOS-FIM */
+
+
+
+/* ELEMENTOS */
+.btn {
+    /* background-color: var(--color-bg); */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+
+    width: 100%;
+    max-width: fit-content;
+    height: auto;
+    
+    border-radius: 10px;
+    padding: .5rem 1.5rem;    
+
+    font-weight: 600;
+    text-align: center;
+
+    transition: all .3s ease;
+
+    &.primary {
+        background-color: var(--color-primary);
+        min-height: 3.2rem;
+        color: var(--color-w);
+
+        &:hover {
+            filter: drop-shadow(0 0 8px var(--color-primary)) brightness(1.1);
+        }
+        /* &:active {
+            filter: drop-shadow(0 0 8px var(--color-primary)) brightness(.9);
+            transform: scale(0.9);
+        } */
+    }
+    &.secundary {
+        background-color: var(--color-secundary);
+        min-height: 3.2rem;
+        color: var(--color-w);
+
+        &:hover {
+            filter: drop-shadow(0 0 8px var(--color-secundary)) brightness(1.1);
+        }
+    }
+    &.danger {
+        background-color: var(--color-danger);
+        min-height: 3.2rem;
+        color: var(--color-w);
+
+        &:hover {
+            filter: brightness(1.1);
+        }
+    }
+    &.cancel {
+        border: 1px solid var(--color-text);
+        min-height: 3.2rem;
+        color: var(--color-text);
+
+        &:hover {
+            filter: brightness(0.9);
+        }
+    }
+    &.success {
+        background-color: var(--color-success);
+        min-height: 3.2rem;
+        color: var(--color-w);
+
+        &:hover {
+            filter: drop-shadow(0 0 8px var(--color-success)) brightness(1.1);
+        }
+    }
+    &.neutral {
+        background-color: var(--color-neutral);
+        min-height: 3.2rem;
+        color: var(--color-w);
+
+        &:hover {
+            filter: drop-shadow(0 0 8px var(--color-neutral)) brightness(1.1);
+        }
+    }
+}
+.container_btns {
+    margin-top: 1.5rem;
+
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.label--input, 
+.label--select {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+
+    > label {
+        font-size: 1.4rem;
+        font-weight: 600;
+    }
+}
+.label--input {
+    
+    .input {
+        background-color: var(--color-w);
+        padding: .7rem;
+        border-radius: 7px;
+        width: 100%;
+        /* max-width: 490px; */
+        /* min-width: 100%; coloquei no textarea a seguir*/
+    }
+
+    textarea {
+        min-width: 100%;
+        max-width: 490px;
+        min-height: 7.5rem;
+        max-height: 15rem;
+    }
+}
+
+
+.separator {
+    background-color: var(--color-text);
+    height: 1px;
+    opacity: 0.3;
+}
+
+.badge {
+    background-color: var(--color-neutral-border);
+    padding: .1rem .5rem .2rem;
+    border-radius: 13px;
+    font-size: 1.2rem;
+    color: var(--color-neutral);
+    border: 0.1rem solid var(--color-neutral);
+    
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Adiciona reticências (...) no final do texto cortado */
+
+
+    &.success {
+        background-color: var(--color-success-bg);
+        border: 0.1rem solid var(--color-success);
+        color: var(--color-success);
+    }
+    &.danger {
+        background-color: var(--color-danger-bg);
+        border: 0.1rem solid var(--color-danger); 
+        color: var(--color-danger);
+    }
+    &.warn {
+        background-color: var(--color-warning-bg);
+        border: 0.1rem solid var(--color-warning-border);
+        color: var(--color-warning);
+    }
+}
+
+.tag {
+    background-color: var(--color-bg-2);
+    padding: .2rem .5rem;
+    border-radius: 7px;
+    font-weight: 500;
+
+    display: flex;
+    align-items: center;
+    gap: .2rem;
+}
+
+
+.msg_feedback {
+    background-color: var(--color-neutral-bg);
+    border-radius: 7px;
+    width: 100%;
+    padding: .7rem;
+
+    &.error {
+        background-color: var(--color-danger-bg);
+        border: 1px solid var(--color-danger);
+        color: var(--color-danger);
+    }
+    &.warn {
+        background-color: var(--color-warning-bg);
+        border: 1px solid var(--color-warning-border);
+        /* color: var(--color-text); */
+    }
+}
+
+.feedback_content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: .7rem;
+    
+    height: 12rem;
+
+    p {
+        font-weight: 600;
+    }
+}
+
+.btn.mobile {
+    /* display: none; */
+  
+    div {
+        background-color: var(--color-text);
+        width: 2.5rem;
+        height: .25rem;
+        margin: .6rem 1rem;
+        border-radius: 5px;
+        
+        transition: all 0.4s ease;
+    }
+
+    &.open .line1 {
+        transform: rotate(-45deg) translate(-0.6rem, 0.5rem);
+    }
+    
+    &.open .line2 {
+        opacity: 0;
+    }
+    
+    &.open .line3 {
+        transform: rotate(45deg) translate(-0.6rem, -0.6rem);
+    }
+}
+
+
+
+
+/* component */
+.confirm_check {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    user-select: none;
+
+    input {
+        display: none;
+    }
+    .checkmark {
+        background-color: var(--color-w);
+        border: 0.1rem solid var(--color-bg-3);
+        min-width: 2rem;
+        height: 2rem;
+        border-radius: 5px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        transition: all 0.3s ease;
+
+        i {
+            opacity: 0;
+            font-size: 1.8rem;
+        }
+    }
+    input:checked + .checkmark {
+        background-color: var(--color-primary);
+        border-color: var(--color-text);
+
+        color: var(--color-w);
+        i {
+            opacity: 1;
+        }
+    }
+
+    .text {
+        font-weight: 400;
+    }
+}
+/* ELEMENTOS-FIM */
+
+
+
+
+
+
+/* ANIMATIONS */
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+@keyframes rotationPulse {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+    50% {
+        transform: rotate(180deg) scale(1.2);
+    }
+    100% {
+        transform: rotate(360deg) scale(1);
+    }        
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+}
+.fadeIn {
+    animation: fadeIn .5s ease;
+}
+/* ANIMATIONS-FIM */

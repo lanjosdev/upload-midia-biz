@@ -17,6 +17,18 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::middleware(['auth:sanctum'])->group(function () {
     //logout
     Route::post('/logout', [LogoutController::class, 'logout']);
+<<<<<<< HEAD
     
     Route::post('/upload', [MediaController::class, 'upload']);
 });
+=======
+
+    //upload image
+    Route::post('/upload', [MediaController::class, 'upload']);
+});
+
+Route::middleware(['token'])->group(function () {
+    //get-media
+    Route::get('get-media', [MediaController::class, 'getMedia']);
+});
+>>>>>>> 60d380febfae00251a3fe00679b4177721f31aaf
