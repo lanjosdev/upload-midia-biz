@@ -1,0 +1,130 @@
+/* Style global para .mainPage */
+.Page > .mainPage {
+    /* border: 3px solid rgb(10, 91, 241); */
+    flex: 1;
+    padding: 3.2rem var(--p-lateral);
+
+    .main_top {
+        margin-bottom: 2rem;
+    }
+
+
+    @media (max-width: 480px) {
+        
+        .main_top {
+            text-align: center;
+        }
+    }
+}
+
+
+.Page > .mainPage.Upload {
+
+    .VideoUploader {
+        border: 0.2rem solid var(--color-bg-2);
+        border-radius: 10px;
+        padding: 2rem;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+
+
+        .container_preview {
+            /* background-color: rgba(0, 255, 255, 0.26); */
+            width: 100%;
+            max-width: 40rem;
+            padding: 0 3.5rem;
+
+            .preview {
+                position: relative;
+                border: 0.3rem dashed var(--color-bg-3);
+                border-radius: 12px;
+
+                display: flex;
+                /* flex-direction: column; */
+                /* justify-content: center; */
+                align-items: center;
+
+                text-align: center;
+
+                
+                > img {
+                    visibility: hidden;
+                    max-width: 100%;
+                    user-select: none;
+                }
+
+                .preview_video,
+                .preview_empty {
+                    position: absolute;
+                    background-color: var(--color-bg-1);
+                }
+
+                .preview_video {
+                    width: 100%;
+                    border-radius: 10px;
+                }
+
+                .preview_empty {
+                    width: 100%;
+                    padding: 1rem;
+
+                    font-size: 1.4rem;
+                }
+            }
+        }
+
+        .container_infos {
+            width: 100%;
+            max-width: 40rem;
+            padding: 0 3.5rem;
+
+            .infos {
+                border: 0.2rem solid var(--color-bg-2);
+                padding: 0.7rem;
+                border-radius: 10px;
+
+                font-size: 1.4rem;
+                /* text-align: center; */
+
+                p {
+                    color: #71717a;
+
+                    span {
+                        font-weight: 600;
+                        color: var(--color-text);
+                    }
+                }
+            }
+        }
+
+        .msg_feedback {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            max-width: fit-content;
+
+            .item {
+                display: flex;
+                align-items: center;
+                gap: 0.7rem;
+            }
+        }
+
+
+        .container_btns {
+            /* justify-content: center; */
+            width: 100%;
+
+            .btn {
+                height: 4.4rem;
+                width: 100%;
+                min-width: fit-content;
+                max-width: 100%;
+            }
+        }
+    }
+}
+
