@@ -9,7 +9,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class UploadMediaController extends Controller
+class MediaController extends Controller
 {
     protected $media;
 
