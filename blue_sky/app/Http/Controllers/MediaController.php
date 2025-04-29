@@ -31,6 +31,10 @@ class MediaController extends Controller
                 ? explode(',', $request->input('resolution'))
                 : null;
 
+            $limit = $request->has('limit') && !empty($request->input('limit'))
+                ? intval($request->input('limit'))
+                : 50;
+
             $data = Media::orderBy('created_at', 'desc')
 
                 // filtro por data inicial    
@@ -50,10 +54,12 @@ class MediaController extends Controller
                     $query->whereIn('fk_region_id', $regionIds);
                 })
 
-                ->paginate(50)
-                ->appends($request->only(['uf', 'start_time', 'end_time', 'resolution']));
+                ->limit($limit)
+                ->get();
+            //paginate(50)
+            // ->appends($request->only(['uf', 'start_time', 'end_time', 'resolution']));
 
-            $data->getCollection()->transform(function ($media) use ($resolutionsRequest) {
+            $data->transform(function ($media) use ($resolutionsRequest) {
                 $allMedias = [
                     ['resolution' => 'original', 'url' => $media->media_link_original],
                     ['resolution' => '1080p', 'url' => $media->media_link_1080],
@@ -82,20 +88,25 @@ class MediaController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'data recorvered with succesfully',
+                'message' => 'dados recuperados com sucesso.',
                 'data' => $data,
+                'count_data' => count($data)
             ]);
         } catch (QueryException $qe) {
-            DB::rollBack();
+
+            Log::info('Error DB: ' . $qe->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error DB: ' . $qe->getMessage(),
+                'message' => 'Algo de errado aconteceu. Por favor, tente novamente mais tarde.',
             ]);
         } catch (Exception $e) {
-            DB::rollBack();
+
+            Log::info('Error: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Algo de errado aconteceu. Por favor, tente novamente mais tarde.',
             ]);
         }
     }

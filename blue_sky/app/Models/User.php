@@ -77,4 +77,9 @@ class User extends Authenticatable
             'fk_region_id.exists' => 'Nenhum resultado encontrado para a região informada. Por favor, verifique.',
         ];
     }
+
+    public function region()
+    {
+        return $this->belongsTo(Region::class, 'fk_region_id');
+    }
 }
