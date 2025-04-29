@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Media;
+use App\Models\Region;
 use App\Models\User;
 use App\Service\Utils;
 use Exception;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-
+use Symfony\Component\Console\Input\Input;
 
 class MediaController extends Controller
 {
@@ -28,17 +29,67 @@ class MediaController extends Controller
     public function getMedia(Request $request)
     {
         try {
-            $data = Media::orderBy('created_at', 'desc')
-                ->paginate(50);
+            // Pega os parâmetros de resolução da requisição
+            $resolutionsRequest = $request->has('resolution')
+                ? explode(',', $request->input('resolution'))
+                : null;
 
-            $data->getCollection()->transform(function ($media) {
+            $data = Media::orderBy('created_at', 'desc')
+
+                //filtro por data inicial    
+                ->when($request->has('start_time'), function ($query) use ($request) {
+                    $start_time = $request->input('start_time');
+                    $query->where('created_at', '>=', $start_time);
+                })
+                //filtro por data final
+                ->when($request->has('end_time'), function ($query) use ($request) {
+                    $end_time = $request->input('end_time');
+                    $query->where('created_at', '<=', $end_time);
+                })
+                // filtro por uf
+                ->when($request->has('uf'), function ($query) use ($request) {
+                    $uf = explode(',', $request->input('uf'));
+
+                    $region = Region::whereIn('state_uf', $uf)
+                        ->get();
+
+                    $query->whereIn('fk_region_id', $region->pluck('id'));
+                })
+                //filtro por resolução
+                ->when($request->has('resolution'), function ($query) use ($request) {
+                    $resolutions = explode(',', $request->input('resolution'));
+                })
+                ->paginate(50)
+                ->appends($request->only(['uf', 'start_time', 'end_time', 'resolution']));
+
+
+            $data->getCollection()->transform(function ($media)  use ($resolutionsRequest) {
+                
+                $allMedias = [
+                    ['resolution' => 'original', 'url' => $media->media_link_original],
+                    ['resolution' => '1080p', 'url' => $media->media_link_1080],
+                    ['resolution' => '320p', 'url' => $media->media_link_320],
+                ];
+
+                // filtra se foi passado alguma resolução
+                if ($resolutionsRequest) {
+                    $allMedias = array_filter($allMedias, function ($item) use ($resolutionsRequest) {
+                        return in_array($item['resolution'], $resolutionsRequest) && !empty($item['url']);
+                    });
+                } else {
+                    // Remove apenas resoluções vazias
+                    $allMedias = array_filter($allMedias, function ($item) {
+                        return !empty($item['url']);
+                    });
+                }
                 return [
                     'id' => $media->id,
-                    'media_original' => $media->media_link_original,
-                    'media_1080x1920' => $media->media_link_1080,
-                    'media_320x448' => $media->media_link_320,
-                    'region' => optional($media->region)->state_uf ?? null,
+                    'uf' => optional($media->region)->state_uf ?? null,
                     'created_at' => $this->utils->formattedDate($media, 'created_at') ?? null,
+                    'medias' => $allMedias,
+                    // 'media_original' => $media->media_link_original,
+                    // 'media_1080x1920' => $media->media_link_1080,
+                    // 'media_320x448' => $media->media_link_320,
                 ];
             });
 
