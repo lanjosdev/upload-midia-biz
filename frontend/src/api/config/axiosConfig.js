@@ -1,7 +1,6 @@
 // Libs:
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { toast } from 'react-toastify';
 
 // CONSTANTES:
 import { APP_CONSTANTS } from './constants';
@@ -22,15 +21,13 @@ api.interceptors.request.use(
   (config) => {
     const token = Cookies.get(APP_CONSTANTS.AUTH_TOKEN_COOKIE_NAME);
     if(token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${JSON.parse(token)}`;
     }
-    console.warn(config);
-    toast.warn(config);
+    // console.log(config);
     return config;
   }, 
   (error) => {
     console.error(error);
-    toast.error(error);
     return Promise.reject(error);
   }
 );
@@ -41,10 +38,10 @@ api.interceptors.response.use(
   (error) => {
     if(error.response?.status === 401) {
       // Exemplo: redirecionar para login se token expirou
+      Cookies.remove(APP_CONSTANTS.AUTH_TOKEN_COOKIE_NAME);
       window.location.href = '/';
     }
-    console.error(error);
-    toast.error(error);
+    // console.error(error);
     return Promise.reject(error);
   }
 );

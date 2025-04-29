@@ -19,21 +19,30 @@ const Login = async (email, password) => {
     return response.data;
 };
 
-const Logout = () => {
-    Cookies.remove(APP_CONSTANTS.AUTH_TOKEN_COOKIE_NAME);
-    window.location.href = '/';
+const Logout = async () => {
+    console.log('CALL FUNCTION API');
+
+    const response = await api.post('/logout');
+
+    // console.log(response.data);
+    return response.data;
 };
 
-const GetCurrentUser = () => {
-  const token = Cookies.get(APP_CONSTANTS.AUTH_TOKEN_COOKIE_NAME);
-  return token ? token : null;
+const GetCurrentUser = async () => {
+    console.log('CALL FUNCTION API');
+
+    const response = await api.get('/profile');
+
+    // console.log(response.data);
+    return response.data;
 };
 
-// Classe para Login e Logout:
 const AuthService = {
 
     // Metodos
-    Login
+    Login,
+    Logout,
+    GetCurrentUser
 };
 
 export default AuthService;

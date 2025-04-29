@@ -133,7 +133,7 @@ export function HeaderMenu() {
                             <i className="bi bi-person-circle"></i>
                             }
                             
-                            <span className='name-profile'>
+                            <span className='txt_capitalize'>
                                 {primeiraPalavra(profileDetails?.name || 'usuário')}
                             </span>
                         </div>

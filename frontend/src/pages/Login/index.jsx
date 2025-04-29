@@ -3,6 +3,9 @@ import Cookies from "js-cookie";
 import { useContext, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+// CONSTANTES:
+import { APP_CONSTANTS } from "../../api/config/constants";
+
 // Contexts:
 import UserContext from "../../contexts/userContext";
 
@@ -29,14 +32,14 @@ export default function Login() {
 
 
 
-    const tokenCookie = Cookies.get('tokenEstoque');
+    const tokenCookie = Cookies.get(APP_CONSTANTS.AUTH_TOKEN_COOKIE_NAME);
 
     useEffect(()=> {
         function verificaTokenCookie() {
             console.log('Effect /Login');
             
             if(tokenCookie) {
-                navigate('/home'); //Será checado a validade do token ao passar para page /home (onde terá o controller router)
+                navigate('/upload'); //Será checado a validade do token ao passar para page /upload (onde terá o controller router)
             }
         } 
         verificaTokenCookie();
