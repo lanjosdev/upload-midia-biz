@@ -3,24 +3,111 @@
 namespace App\Http\Controllers;
 
 use App\Models\Media;
+use App\Models\Region;
 use App\Models\User;
+use App\Service\Utils;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 class MediaController extends Controller
 {
     protected $media;
+    protected $utils;
 
-    public function __construct(Media $media)
+    public function __construct(Media $media, Utils $utils)
     {
         $this->media = $media;
+        $this->utils = $utils;
+    }
+
+    public function getMedia(Request $request)
+    {
+        try {
+            $resolutionsRequest = $request->has('resolution')
+                ? explode(',', $request->input('resolution'))
+                : null;
+
+            $data = Media::orderBy('created_at', 'desc')
+
+                // filtro por data inicial    
+                ->when($request->has('start_time'), function ($query) use ($request) {
+                    $query->where('created_at', '>=', $request->input('start_time'));
+                })
+
+                // filtro por data final
+                ->when($request->has('end_time'), function ($query) use ($request) {
+                    $query->where('created_at', '<=', $request->input('end_time'));
+                })
+
+                // filtro por uf
+                ->when($request->has('uf'), function ($query) use ($request) {
+                    $uf = explode(',', $request->input('uf'));
+                    $regionIds = Region::whereIn('state_uf', $uf)->pluck('id');
+                    $query->whereIn('fk_region_id', $regionIds);
+                })
+
+                ->paginate(50)
+                ->appends($request->only(['uf', 'start_time', 'end_time', 'resolution']));
+
+            $data->getCollection()->transform(function ($media) use ($resolutionsRequest) {
+                $allMedias = [
+                    ['resolution' => 'original', 'url' => $media->media_link_original],
+                    ['resolution' => '1080p', 'url' => $media->media_link_1080],
+                    ['resolution' => '320p', 'url' => $media->media_link_320],
+                ];
+
+                if ($resolutionsRequest) {
+                    $allMedias = array_filter($allMedias, function ($item) use ($resolutionsRequest) {
+                        return in_array($item['resolution'], $resolutionsRequest) && !empty($item['url']);
+                    });
+                } else {
+                    $allMedias = array_filter($allMedias, function ($item) {
+                        return !empty($item['url']);
+                    });
+                }
+
+                $allMedias = array_values($allMedias);
+
+                return [
+                    'id' => $media->id,
+                    'uf' => optional($media->region)->state_uf ?? null,
+                    'created_at' => $this->utils->formattedDate($media, 'created_at') ?? null,
+                    'medias' => $allMedias,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'data recorvered with succesfully',
+                'data' => $data,
+            ]);
+        } catch (QueryException $qe) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error DB: ' . $qe->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+            ]);
+        }
     }
 
     public function upload(Request $request)
     {
         DB::beginTransaction();
+
+        $originalPath = null;
+        $fileName = null;
+        $destinationPath1080 = null;
+        $destinationPath320 = null;
         try {
 
             $user = $request->user();
@@ -30,56 +117,183 @@ class MediaController extends Controller
                 $this->media->feedbackMedias()
             );
 
+            //Linux "/usr/bin/ffmpeg" and '/usr/bin/ffprobe';
+            //Windows (my computer) C:\\ffmpeg\\ffmpeg-master-latest-win64-gpl-shared\\bin\\ffprobe.exe and ffmpeg.exe;
+
+            if (PHP_OS_FAMILY == 'Windows') {
+                $ffprobePath = 'C:\\ffmpeg\\ffmpeg-master-latest-win64-gpl-shared\\bin\\ffprobe.exe';
+                $ffmpegPath = "C:\\ffmpeg\\ffmpeg-master-latest-win64-gpl-shared\\bin\\ffmpeg.exe";
+            } else {
+                $ffprobePath = '/usr/bin/ffprobe';
+                $ffmpegPath = '/usr/bin/ffmpeg';
+            }
+
             if ($validatedData) {
 
-                $infoUsers = User::where('email', $user->email)
+                $infoUsersLocationUf = User::where('email', $user->email)
                     ->first();
 
-                if ($infoUsers) {
-                    if ($infoUsers->fk_region_id == 1) {
-                        $infoUsers = 'CE';
-                    } elseif ($infoUsers->fk_region_id == 2) {
-                        $infoUsers = 'PE';
-                        # code...
+                if ($infoUsersLocationUf) {
+                    if ($infoUsersLocationUf->fk_region_id == 1) {
+                        $infoUsersLocationUf = 'CE';
+                    } elseif ($infoUsersLocationUf->fk_region_id == 2) {
+                        $infoUsersLocationUf = 'PE';
                     } else {
-                        $infoUsers = 'RJ';
+                        $infoUsersLocationUf = 'RJ';
                     }
                 }
-                
+
+                $video = $request->file('video');
+
+                $extension = $video->getClientOriginalExtension();
+                $pathTmp = $video->getPathname();
+
+                if ($extension == 'MOV') {
+                    // Cria o caminho de saída temporário
+                    $outputPath = storage_path('app/temp/' . uniqid() . '.mp4');
+
+                    // Garante que a pasta temp exista
+                    if (!File::exists(storage_path('app/temp'))) {
+                        File::makeDirectory(storage_path('app/temp'), 0775, true);
+                    }
+
+                    $cmd = "$ffmpegPath -i \"$pathTmp\" -c:v libx264 -crf 18 -c:a aac -b:a 128k -movflags +faststart -an -r 30 \"$outputPath\" 2>&1";
+
+                    $execOutput = shell_exec($cmd);
+
+                    // Aqui você pode fazer um Log::debug para ver o que o ffmpeg retornou
+                    Log::debug('FFmpeg Output: ' . $execOutput);
+
+                    // Atualiza o caminho temporário para o novo arquivo gerado
+                    $pathTmp = $outputPath;
+                    $extension = 'mp4';
+                }
+
+
                 $date = now()->format('d-m-Y_H-i-s');
-                $path = $infoUsers . '_' . $date;
+                $fileName = $infoUsersLocationUf . '_' . $date . '_' . uniqid() . '.' . $extension;
 
-                dd($path);
+                $destinationPathOriginal = public_path('videos/original');
+                $destinationPath1080 = public_path('videos/videos_1080');
+                $destinationPath320 = public_path('videos/videos_320');
 
-                // Salvar vídeo original
-                $original = $request->file('video')->store('videos/original');
-                dd($original);
-                // Caminhos
-                $originalPath = storage_path('app/' . $original);
-                $cortadoPath = storage_path('app/videos/cortado.mp4');
-                $comMolduraPath = storage_path('app/videos/com_moldura.mp4');
-                $molduraPath = public_path('moldura.png');
+                foreach ([$destinationPathOriginal, $destinationPath1080, $destinationPath320] as $path) {
+                    if (!File::exists($path)) {
+                        File::makeDirectory($path, 0775, true);
+                    }
+                }
 
-                // Cortar os primeiros 10 segundos
-                exec("ffmpeg -i {$originalPath} -t 10 -c copy {$cortadoPath}");
+                $originalPath = null;
 
-                // Adicionar moldura
-                exec("ffmpeg -i {$cortadoPath} -i {$molduraPath} -filter_complex \"overlay=0:0\" {$comMolduraPath}");
+                $originalPath = $destinationPathOriginal . DIRECTORY_SEPARATOR . $fileName;
+                $video->move($destinationPathOriginal, $fileName);
 
-                return response()->json([
-                    'original' => asset('storage/' . $original),
-                    'cortado' => asset('storage/videos/cortado.mp4'),
-                    'com_moldura' => asset('storage/videos/com_moldura.mp4'),
+                $cmdGetDuration = "$ffprobePath -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"$originalPath\" 2>&1";
+
+                $duration = floatval(trim(shell_exec($cmdGetDuration)));
+
+                if ($duration < 10) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'O vídeo precisa ter no mínimo 10 segundos.',
+                    ]);
+                }
+
+                $molduraPath = null;
+
+                if ($infoUsersLocationUf === 'CE') {
+                    $molduraPath = public_path('Recife.png');
+                    $moldura320Path = public_path('pe.png');
+                } elseif ($infoUsersLocationUf === 'PE') {
+                    $molduraPath = public_path('Fortal.png');
+                    $moldura320Path = public_path('ce.png');
+                } else {
+                    $molduraPath = public_path('RJ.png');
+                    $moldura320Path = public_path('rjmin.png');
+                }
+
+                $withFramePath = $destinationPathOriginal . '/temp_framed_' . $fileName; // Não será salvo, será usado apenas para gerar as resoluções
+                $cmdFrame = "$ffmpegPath -y -i \"$originalPath\" -t 10 -r 30 -an -c:v libx264 -preset ultrafast -c:a copy \"$withFramePath\"";
+                shell_exec($cmdFrame);
+
+                // gerar resoluções (1080p e 320p)
+                $cmd1080 = "$ffmpegPath -y -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v][1:v] overlay=0:0,scale=1080:1920\" \"$destinationPath1080/$fileName\"";
+                $cmd320 = "$ffmpegPath -y -i \"$withFramePath\" -i \"$moldura320Path\" -filter_complex \"[0:v]scale=320:480,crop=320:448:0:0[scaled];[scaled][1:v]overlay=0:0\" \"$destinationPath320/$fileName\"";
+
+                shell_exec($cmd1080);
+                shell_exec($cmd320);
+
+                if (!file_exists($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName) || !file_exists($destinationPath320 . DIRECTORY_SEPARATOR . $fileName)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Erro ao gerar as resoluções do vídeo.',
+                    ]);
+                }
+
+                if (file_exists($withFramePath)) {
+                    unlink($withFramePath);
+                }
+
+                $insertMedia = Media::create([
+                    'media_link_original' => asset("videos/original/$fileName"),
+                    'media_link_1080' => asset("videos/videos_1080/$fileName"),
+                    'media_link_320' => asset("videos/videos_320/$fileName"),
+                    'fk_region_id' => $user->fk_region_id,
                 ]);
+
+                if ($insertMedia) {
+
+                    DB::commit();
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Vídeo processado com sucesso.',
+                    ]);
+                }
             }
         } catch (QueryException $qe) {
             DB::rollBack();
+
+            $pathsToDelete = [];
+
+            if (!empty($originalPath) && file_exists($originalPath)) {
+                $pathsToDelete[] = $originalPath;
+            }
+            if (!empty($fileName) && !empty($destinationPath1080) && file_exists($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName)) {
+                $pathsToDelete[] = $destinationPath1080 . DIRECTORY_SEPARATOR . $fileName;
+            }
+            if (!empty($fileName) && !empty($destinationPath320) && file_exists($destinationPath320 . DIRECTORY_SEPARATOR . $fileName)) {
+                $pathsToDelete[] = $destinationPath320 . DIRECTORY_SEPARATOR . $fileName;
+            }
+
+            foreach ($pathsToDelete as $path) {
+                unlink($path);
+            }
+
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error DB: ' . $qe->getMessage(),
             ]);
         } catch (Exception $e) {
             DB::rollBack();
+
+            $pathsToDelete = [];
+
+            if (!empty($originalPath) && file_exists($originalPath)) {
+                $pathsToDelete[] = $originalPath;
+            }
+            if (!empty($fileName) && !empty($destinationPath1080) && file_exists($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName)) {
+                $pathsToDelete[] = $destinationPath1080 . DIRECTORY_SEPARATOR . $fileName;
+            }
+            if (!empty($fileName) && !empty($destinationPath320) && file_exists($destinationPath320 . DIRECTORY_SEPARATOR . $fileName)) {
+                $pathsToDelete[] = $destinationPath320 . DIRECTORY_SEPARATOR . $fileName;
+            }
+
+            foreach ($pathsToDelete as $path) {
+                unlink($path);
+            }
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage(),

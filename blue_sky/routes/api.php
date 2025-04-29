@@ -22,5 +22,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 Route::middleware(['token'])->group(function () {
-    Route::get('/get-media', [MediaController::class], 'getMedia');
+    //get-media
+    Route::get('/get-media', [MediaController::class, 'getMedia']);
 });

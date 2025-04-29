@@ -16,7 +16,8 @@ class ValidToken
     public function handle(Request $request, Closure $next): Response
     {
         $token = $request->bearerToken();
-        if ($token === config('app.access_token')) {
+
+        if ($token === env('API_TOKEN')) {
             return $next($request);
         } else {
             return response()->json([
