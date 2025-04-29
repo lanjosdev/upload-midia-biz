@@ -1,0 +1,10 @@
+.Footer {
+    /* border: 3px solid greenyellow; */
+    display: flex;
+    justify-content: center;
+
+    padding: 0 1.5rem 1.5rem;
+
+    text-align: center;
+    font-weight: 600;
+}
