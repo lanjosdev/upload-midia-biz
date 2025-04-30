@@ -3,8 +3,11 @@ import Cookies from "js-cookie";
 import { useState, useContext, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 
+// CONSTANTES:
+import { APP_CONSTANTS } from "../api/config/constants";
+
 // API:
-import { USER_PROFILE_DETAILS } from '../API/userApi';
+import AuthService from "../api/authService";
 
 // Contexts:
 import UserContext from '../contexts/userContext';
@@ -16,7 +19,7 @@ import { toast } from 'react-toastify';
 //import { formatarHora } from '../../../utils/formatarNumbers';
 
 // Assets:
-import SpinnerLogo from '../assets/BIZSYS_logo_icon.png';
+import SpinnerLogo from '../assets/images/BIZSYS_logo_icon.png';
 
 
 
@@ -32,13 +35,12 @@ export default function ControllerRouter({ children }) {
 
     // Verifica validade do token sempre que acessar rotas privadas SE SIM alimenta profileDetails:
     useEffect(()=> {
-        async function checkToken()
-        {
-            console.log('Effect ControllerRouter');
-            const tokenCookie = Cookies.get('tokenEstoque') || null;  
+        async function checkToken() {
+            console.log('Effect ControllerRouter');  
 
             try {
-                const response = await USER_PROFILE_DETAILS(JSON.parse(tokenCookie));
+                // const response = await USER_PROFILE_DETAILS(JSON.parse(tokenCookie));
+                const response = await AuthService.GetCurrentUser();
                 console.log(response);  
     
                 if(response.success) {
@@ -53,15 +55,16 @@ export default function ControllerRouter({ children }) {
                 }
             }
             catch(error) {
-                if(error?.response?.data?.message == 'Unauthenticated.') {
-                    console.error('Requisição não autenticada. Token Invalido!');
-                    // remove token e profileDetails;
-                    Cookies.remove('tokenEstoque');
-                    setProfileDetails(null);
-                }
-                else {
-                    console.error('Houve algum erro.');
-                }
+                // if(error?.response?.data?.message == 'Unauthenticated.') {
+                //     console.error('Requisição não autenticada. Token Invalido!');
+
+                //     // remove token e profileDetails;
+                //     Cookies.remove('tokenEstoque');
+                //     setProfileDetails(null);
+                // }
+                // else {
+                //     console.error('Houve algum erro.');
+                // }
 
                 console.error('DETALHES DO ERRO: ', error);
             }
@@ -79,7 +82,7 @@ export default function ControllerRouter({ children }) {
         <>
         {loading ? (
 
-            <div className="loading-route">
+            <div className="loading_route">
                 <img src={SpinnerLogo} alt="" />
             </div>
 

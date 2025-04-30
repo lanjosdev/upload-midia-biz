@@ -6,7 +6,7 @@ import Login from "../pages/Login";
 import Upload from "../pages/Upload";
 
 // Components:
-// import ControllerRouter from "./ControllerRouter";
+import ControllerRouter from "./ControllerRouter";
 
 
 
@@ -16,7 +16,7 @@ export default function AppRoutes() {
 
             <Route path="/" element={ <Login /> } />
 
-            <Route path="/upload" element={ <Upload /> } />
+            <Route path="/upload" element={ <ControllerRouter> <Upload /> </ControllerRouter> } />
 
         </Routes>
     )

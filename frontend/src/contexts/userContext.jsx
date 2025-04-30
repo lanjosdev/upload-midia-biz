@@ -47,7 +47,7 @@ export function UserProvider({ children }) {
                     expires: 1 // 1 dia
                 });
                 
-                navigate('/home');
+                navigate('/upload');
             }
             else if(response.success == false) {
                 toast.error(response.message);
@@ -57,12 +57,12 @@ export function UserProvider({ children }) {
             }
         }
         catch(error) {
-            if(error?.response?.data?.message == 'Unauthenticated.') {
-                console.error('Requisição não autenticada.');
-            }
-            else {
-                toast.error('Houve algum erro.');
-            }
+            // if(error?.response?.data?.message == 'Unauthenticated.') {
+            //     console.error('Requisição não autenticada.');
+            // }
+            // else {
+            //     toast.error('Houve algum erro.');
+            // }
 
             console.error('DETALHES DO ERRO: ', error);
         }
@@ -73,19 +73,19 @@ export function UserProvider({ children }) {
     // Logout usuario:
     function removeCookie() {
         setProfileDetails(null);               
-        Cookies.remove('tokenEstoque');
+        Cookies.remove(APP_CONSTANTS.AUTH_TOKEN_COOKIE_NAME);
 
-        navigate('/');
+        // navigate('/');
         toast.success('Usuário desconectado.');
     }
     async function logoutUser() 
     {
         setLoading(true);    
         console.log('Call function Logout do Context...');
-        const tokenCookie = Cookies.get('tokenEstoque') || null;
 
         try {
-            const response = await USER_LOGOUT(JSON.parse(tokenCookie));
+            // const response = await USER_LOGOUT(JSON.parse(tokenCookie));
+            const response = await AuthService.Logout();
             console.log(response);  
 
             if(response.success || response.message == 'Unauthenticated.') {
@@ -99,13 +99,13 @@ export function UserProvider({ children }) {
             }
         }
         catch(error) {
-            if(error?.response?.data?.message == 'Unauthenticated.') {
-                console.error('Requisição não autenticada.');
-                removeCookie();
-            }
-            else {
-                toast.error('Houve algum erro.');
-            }
+            // if(error?.response?.data?.message == 'Unauthenticated.') {
+            //     console.error('Requisição não autenticada.');
+            //     removeCookie();
+            // }
+            // else {
+            //     toast.error('Houve algum erro.');
+            // }
 
             console.error('DETALHES DO ERRO: ', error);
         }
