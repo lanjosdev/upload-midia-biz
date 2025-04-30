@@ -9,6 +9,7 @@ use App\Models\User;
 use App\ProcessVideo;
 use App\Service\Utils;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -174,7 +175,7 @@ class MediaController extends Controller
 
     //                 // $cmd = "$ffmpegPath -i \"$pathTmp\" -c:v libx264 -crf 18 -c:a aac -b:a 128k -movflags +faststart -an -r 30 \"$outputPath\" 2>&1";
     //                 $cmd = "$ffmpegPath -i \"$pathTmp\" -c:v libx264 -crf 18 -c:a aac -b:a 128k -movflags +faststart \"$outputPath\" 2>&1";
-                    
+
     //                 $execOutput = shell_exec($cmd);
 
     //                 Log::debug('FFmpeg Output: ' . $execOutput);
@@ -338,13 +339,12 @@ class MediaController extends Controller
                 File::makeDirectory(($folderTemp), 0775, true);
             }
             $video = $request->file('video');
-            $fileName = uniqid() . '.' . $video->getClientOriginalExtension(); 
+            $fileName = uniqid() . '.' . $video->getClientOriginalExtension();
             $video->move($folderTemp, $fileName);
-            
+
             $fullPath = $folderTemp . DIRECTORY_SEPARATOR . $fileName;
             $extension = $video->getClientOriginalExtension();
             $pathTemp = $video->getPathname();
-
 
             if ($validatedData && File::exists($fullPath)) {
                 ProcessVideoJob::dispatch($fullPath, $pathTemp, $extension, $regionId, $resolutionScale1080, $resolutionScale320);

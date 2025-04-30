@@ -2,8 +2,8 @@
 
 use App\Http\Controllers\Authentication\LoginController;
 use App\Http\Controllers\Authentication\LogoutController;
+use App\Http\Controllers\Authentication\ProfileController;
 use App\Http\Controllers\MediaController;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,8 +18,12 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::middleware(['auth:sanctum'])->group(function () {
     //logout
     Route::post('/logout', [LogoutController::class, 'logout']);
+    
+    
     //upload
     // Route::post('/upload', [MediaController::class, 'upload']);
+    
+    
     //profile
     Route::get('/profile', [ProfileController::class, 'profile']);
     
