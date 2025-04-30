@@ -1,8 +1,8 @@
 // Hooks / Libs:
-import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
 // API:
+import UploadService from "../../api/uploadService";
 
 // Contexts:
 // import UserContext from "../../contexts/userContext";
@@ -27,7 +27,7 @@ export default function Upload() {
     // Variaveis padrão:
     const durationLimits = {
         min: 10,
-        max: 12
+        max: 13
     };
     const megabyteNominal = 50;
     const megabyteLimit = megabyteNominal * 1048576;
@@ -39,8 +39,8 @@ export default function Upload() {
     }; // { name_file: string | null, dimensions: {width: number, height: number}, duration: number, size: number }
 
     // Estados do componente:
-    const [loadingFilePreview, setloadingFilePreview] = useState(false);
-    const [loadingSubmit, setloadingSubmit] = useState(false);
+    const [loadingFilePreview, setLoadingFilePreview] = useState(false);
+    const [loadingSubmit, setLoadingSubmit] = useState(false);
     // const [hasError, setHasError] = useState(false);
     const [validationErrors, setValidationErrors] = useState([]);
     // const [validationMessage, setValidationMessage] = useState([]); // [{type: "success" | "error" | null, message: string}]
@@ -49,6 +49,8 @@ export default function Upload() {
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [infosVideo, setInfosVideo] = useState(infosNull); 
+    const [progress, setProgress] = useState(0); 
+    const [uploadSuccess, setUploadSuccess] = useState(false); 
 
 
 
@@ -57,14 +59,13 @@ export default function Upload() {
     // const isValidAspectRatio = aspectRatio !== null && Math.abs(aspectRatio - 9 / 16) < 0.1;
     // const isVideoValid = isValidDuration && isValidAspectRatio;
 
-    const tokenCookie = Cookies.get('tokenEstoque');
 
     useEffect(()=> {
         function initializePage() {
             console.log('Effect /Upload');
         } 
         initializePage();
-    }, [tokenCookie]);
+    }, []);
 
 
 
@@ -108,7 +109,8 @@ export default function Upload() {
 
         // GERA A URL PARA PRÉ-VISUALIZAÇÂO E SALVA VIDEO E SUAS INFOS:
         setValidationErrors([]);
-        setloadingFilePreview(true);
+        setLoadingFilePreview(true);
+        setUploadSuccess(false);
 
         try {
             const fileUrl = URL.createObjectURL(file);
@@ -150,13 +152,13 @@ export default function Upload() {
                 }
 
                 // Verificar duração (10-15 segundos)
-                if (duration < 10 || duration > 15) {
-                    errors.push(`O vídeo deve ter entre ${durationLimits.min} e ${durationLimits.max} segundos`);
+                if (duration < durationLimits.min || duration > durationLimits.max) {
+                    errors.push(`O vídeo deve ter de ${durationLimits.min} a ${durationLimits.max} segundos`);
                 } 
                 
                 setValidationErrors(errors);
                 setSelectedFile(file);
-                setloadingFilePreview(false);
+                setLoadingFilePreview(false);
             }
             video.src = fileUrl;
         }
@@ -165,8 +167,54 @@ export default function Upload() {
             setValidationErrors(['Houve um erro inesperado.']);
             
             resetCurrentData();
-            setloadingFilePreview(false);
+            setLoadingFilePreview(false);
         }
+    }
+
+
+    // SUBMIT API:
+    async function handleUploadVideo() {
+        setLoadingSubmit(true);
+
+        // VALIDAÇÕES:
+        console.log(selectedFile)
+        if(!selectedFile) {
+            toast.warn('Não há arquivo para fazer upload')
+            return;
+        }
+        
+        // Request:
+        try {
+            const response = await UploadService.UploadVideo(selectedFile, (progress) => {
+                // console.log(`Progresso: ${progress}%`);
+                // Aqui você pode atualizar uma barra de progresso no estado do React, por exemplo.
+                setProgress(progress);
+            });
+            console.log(response);  
+
+            if(response.success) {
+                toast.success('Vídeo enviado com sucesso.');
+                setUploadSuccess(true);
+            }
+            else if(response.success == false) {
+                console.warn(response.message);
+                toast.warn(response.message);
+            }
+            else {
+                toast.error('Erro inesperado.');
+            }
+        }
+        catch(error) {
+            console.error('DETALHES DO ERRO: ', error);
+            toast.error('Houve algum erro.');
+
+            setValidationErrors(['Falha no upload.']);
+            resetCurrentData();
+        }         
+
+
+        console.log('FIIIIIM')
+        setLoadingSubmit(false);
     }
   
 
@@ -249,11 +297,10 @@ export default function Upload() {
 
                     {/* Controle de ações */}
                     <div className="container_btns">
-                        <label className="btn cancel">
+                        <label className="btn cancel" disabled={loadingSubmit}>
                             <input className="none" 
-                            type="file" 
+                            type="file"
                             accept="video/mp4" 
-                            // accept="video/*" 
                             onChange={handleChangeFile} 
                             disabled={loadingSubmit}
                             />
@@ -262,10 +309,14 @@ export default function Upload() {
                         </label>
 
                         <button className="btn primary"
-                        onClick={()=> toast.warn('Fazer a função')}
-                        disabled={!selectedFile || validationErrors.length > 0 || loadingFilePreview || loadingSubmit}
+                        onClick={handleUploadVideo}
+                        disabled={!selectedFile || validationErrors.length > 0 || loadingFilePreview || loadingSubmit || uploadSuccess}
                         >
-                            {loadingSubmit ? 'Enviando...' : 'Fazer upload'}
+                            {loadingSubmit ? `Upload (${progress}%)...` : uploadSuccess ? (
+                                <span><i class="bi bi-check-circle-fill"></i> Enviado</span>
+                            ) : (
+                                <span>Fazer upload</span>
+                            )}
                         </button>
                     </div>
                 </div>
