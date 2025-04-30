@@ -155,7 +155,7 @@ class ProcessVideo
 
                 $withFramePath = $destinationPathOriginal . '/temp_framed_' . $fileName;
             
-                $cmdFrame = "$ffmpegPath -y -i \"$originalPath\" -t 10 -r 30 -an -c:v libx264 -preset ultrafast -c:a copy \"$withFramePath\"";
+                $cmdFrame = "$ffmpegPath -y -i \"$originalPath\" -t 10 -r 30 -an -b:v 10000k -maxrate 10000k -bufsize 20000k -fs 20M -c:v libx264 -preset ultrafast -c:a copy \"$withFramePath\"";
                 shell_exec($cmdFrame);
 
                 // gerar resoluções (1080p e 320p)
