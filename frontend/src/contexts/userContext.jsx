@@ -37,15 +37,16 @@ export function UserProvider({ children }) {
 
         try {
             const response = await AuthService.Login(email, senha);
-            console.log(response);  
-
+            console.log(response);
+            
             if(response.success) {
-                toast.success('Login realizado com sucesso!');
-                Cookies.set(APP_CONSTANTS.AUTH_TOKEN_COOKIE_NAME, JSON.stringify(response.data), { 
+                const token = response.data;
+                Cookies.set(APP_CONSTANTS.AUTH_TOKEN_COOKIE_NAME, token, { 
                     secure: true,
                     sameSite: 'Strict',
                     expires: 1 // 1 dia
                 });
+                toast.success('Login realizado com sucesso!');
                 
                 navigate('/upload');
             }
