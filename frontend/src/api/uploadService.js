@@ -1,10 +1,30 @@
 // Libs:
 import api from './config/axiosConfig';
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 
 // CONSTANTES:
-import { APP_CONSTANTS } from './config/constants';
+// import { APP_CONSTANTS } from './config/constants';
 
+
+// const UploadVideo = async (file, onProgress) => {
+//     // console.log('CALL FUNCTION API');
+//     const bodyFormData = new FormData();
+//     bodyFormData.append("video", file);
+
+//     console.log('Enviando arquivo...');
+//     const response = await axios.post('https://httpbin.org/post', bodyFormData, {
+//         headers: {
+//             'Content-Type': 'multipart/form-data',
+//         },
+//         onUploadProgress: (progressEvent) => {
+//             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+//             onProgress(percentCompleted);
+//         },
+//     });
+
+//     // console.log(response.data);
+//     return response.data;
+// };
 
 const UploadVideo = async (file, onProgress) => {
     // console.log('CALL FUNCTION API');
@@ -31,5 +51,4 @@ const UploadService = {
     // Metodos
     UploadVideo
 };
-
 export default UploadService;

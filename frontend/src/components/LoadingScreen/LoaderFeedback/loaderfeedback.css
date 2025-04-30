@@ -1,0 +1,30 @@
+.LoaderFeedback {
+    /* background-color: #ff5e00; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+
+    &.heightStretch {
+        height: 100%;
+    }
+
+
+    .loader_content {
+        width: 10rem;
+        height: 10rem;
+        border: 2px solid var(--color-text);
+        border-bottom-color: transparent;
+        border-radius: 50%;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+    }
+
+    p {
+        font-size: 1.8rem;
+        font-weight: 600;
+        text-shadow: 0 0 5px #ffffffef;
+    }
+}

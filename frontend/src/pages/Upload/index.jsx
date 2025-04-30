@@ -1,5 +1,7 @@
 // Hooks / Libs:
 import { useEffect, useState } from "react";
+// import { FFmpeg } from "@ffmpeg/ffmpeg";
+// import { toBlobURL, fetchFile } from "@ffmpeg/util";
 
 // API:
 import UploadService from "../../api/uploadService";
@@ -10,6 +12,7 @@ import UploadService from "../../api/uploadService";
 // Components:
 import { toast } from "react-toastify";
 import { HeaderMenu } from "../../components/HeaderMenu/HeaderMenu";
+import { LoadingScreen } from "../../components/LoadingScreen/LoadingScreen";
 
 // Assets:
 import imgEmpty from '../../assets/images/photo_empty.webp';
@@ -24,7 +27,7 @@ import './style.css';
 
 
 export default function Upload() {
-    // Variaveis padrão:
+    // Constantes do componente:
     const durationLimits = {
         min: 10,
         max: 13
@@ -49,15 +52,13 @@ export default function Upload() {
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [infosVideo, setInfosVideo] = useState(infosNull); 
+
     const [progress, setProgress] = useState(0); 
     const [uploadSuccess, setUploadSuccess] = useState(false); 
 
+    
+    // const ffmpegRef = useRef(new FFmpeg());
 
-
-    // // Check validations
-    // const isValidDuration = videoDuration !== null && videoDuration >= 10 && videoDuration <= 20;
-    // const isValidAspectRatio = aspectRatio !== null && Math.abs(aspectRatio - 9 / 16) < 0.1;
-    // const isVideoValid = isValidDuration && isValidAspectRatio;
 
 
     useEffect(()=> {
@@ -72,14 +73,68 @@ export default function Upload() {
 
 
     
-    function resetCurrentData() {
+    function resetCurrentData(exceptFile=false) {
         if(previewUrl) {
             URL.revokeObjectURL(previewUrl);
         }
         setPreviewUrl(null);
         setInfosVideo(infosNull);
-        setSelectedFile(null);
+        if(!exceptFile) {
+            setSelectedFile(null);
+        }
+        setProgress(0);
     }
+
+    // const compressVideo = async (file) => {  
+    //     // Importa dinamicamente o ffmpeg
+    //     const { createFFmpeg, fetchFile } = await import("@ffmpeg/ffmpeg");
+
+    //     const ffmpeg = createFFmpeg({ log: true });  
+    //     await ffmpeg.load();  
+    //     ffmpeg.FS("writeFile", "input.mp4", await fetchFile(file));  
+      
+    //     // Comando FFmpeg: compressão com codec H.264, mantendo resolução  
+    //     await ffmpeg.run(  
+    //       "-i", "input.mp4",  
+    //       "-c:v", "libx264",  
+    //       "-crf", "23", // Ajuste de qualidade (23 é equilibrado)  
+    //       "-preset", "fast",  
+    //       "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease",  
+    //       "output.mp4"  
+    //     );  
+      
+    //     const compressedData = ffmpeg.FS("readFile", "output.mp4");  
+    //     return new File([compressedData.buffer], "compressed.mp4", { type: "video/mp4" });  
+    // };  
+
+    // Compressão mantendo dimensões originais
+    // const compressVideo = async (file) => {
+    //     setProgress(100);
+    //     await loadFFmpeg();
+
+    //     ffmpeg.on('progress', ({ progress }) => {
+    //     setProgress(Math.round(progress * 100));
+    //     });
+
+    //     // Escrever o arquivo no sistema virtual do FFmpeg
+    //     await ffmpeg.writeFile('input.mp4', await fetchFile(file));
+
+    //     // Comando de compressão (ajuste parâmetros conforme necessário)
+    //     await ffmpeg.exec([
+    //     '-i', 'input.mp4',
+    //     '-c:v', 'libx264',      // Codec de vídeo
+    //     '-crf', '28',           // Qualidade (23-28 é recomendado)
+    //     '-preset', 'medium',    // Balanceamento velocidade/compressão
+    //     '-c:a', 'aac',          // Codec de áudio
+    //     '-b:a', '128k',         // Taxa de bits do áudio
+    //     '-movflags', '+faststart', // Otimização para streaming
+    //     'output.mp4'
+    //     ]);
+
+    //     // Ler o resultado
+    //     const data = await ffmpeg.readFile('output.mp4');
+    //     return new File([data.buffer], 'compressed.mp4', { type: 'video/mp4' });
+    // };
 
     function handleChangeFile(e) {
         const file = e.target.files?.[0] || null;
@@ -177,17 +232,19 @@ export default function Upload() {
         setLoadingSubmit(true);
 
         // VALIDAÇÕES:
-        console.log(selectedFile)
+        // console.log('Original', selectedFile)
+        // const compressedFile = await compressVideo(selectedFile);
+        // console.log('Compressado', compressedFile)
         if(!selectedFile) {
             toast.warn('Não há arquivo para fazer upload')
+            setLoadingSubmit(false);
             return;
         }
-        
+
         // Request:
+        resetCurrentData(true);
         try {
             const response = await UploadService.UploadVideo(selectedFile, (progress) => {
-                // console.log(`Progresso: ${progress}%`);
-                // Aqui você pode atualizar uma barra de progresso no estado do React, por exemplo.
                 setProgress(progress);
             });
             console.log(response);  
@@ -206,15 +263,16 @@ export default function Upload() {
         }
         catch(error) {
             console.error('DETALHES DO ERRO: ', error);
-            toast.error('Houve algum erro.');
+            // toast.error('Houve algum erro.');
 
             setValidationErrors(['Falha no upload.']);
-            resetCurrentData();
+            // resetCurrentData();
         }         
 
 
-        console.log('FIIIIIM')
+        // console.log('FIIIIIM')
         setLoadingSubmit(false);
+        resetCurrentData();
     }
   
 
@@ -297,12 +355,12 @@ export default function Upload() {
 
                     {/* Controle de ações */}
                     <div className="container_btns">
-                        <label className="btn cancel" disabled={loadingSubmit}>
+                        <label className="btn cancel" disabled={loadingFilePreview || loadingSubmit}>
                             <input className="none" 
                             type="file"
                             accept="video/mp4" 
                             onChange={handleChangeFile} 
-                            disabled={loadingSubmit}
+                            disabled={loadingFilePreview || loadingSubmit}
                             />
 
                             Selecione um vídeo
@@ -312,8 +370,10 @@ export default function Upload() {
                         onClick={handleUploadVideo}
                         disabled={!selectedFile || validationErrors.length > 0 || loadingFilePreview || loadingSubmit || uploadSuccess}
                         >
-                            {loadingSubmit ? `Upload (${progress}%)...` : uploadSuccess ? (
-                                <span><i class="bi bi-check-circle-fill"></i> Enviado</span>
+                            {loadingSubmit ? 
+                                <span>Enviando...</span>
+                            : uploadSuccess ? (
+                                <span><i className="bi bi-check-circle-fill"></i> Enviado</span>
                             ) : (
                                 <span>Fazer upload</span>
                             )}
@@ -325,6 +385,9 @@ export default function Upload() {
 
             </main>
 
+            {loadingSubmit && (
+                <LoadingScreen textFeedback={`Realizando upload do vídeo (${progress}%)`} />
+            )}
         </div>
     );
 }
