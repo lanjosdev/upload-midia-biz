@@ -337,7 +337,6 @@ class MediaController extends Controller
             if (!File::exists($folderTemp)) {
                 File::makeDirectory(($folderTemp), 0775, true);
             }
-            
             $video = $request->file('video');
             $fileName = uniqid() . '.' . $video->getClientOriginalExtension(); 
             $video->move($folderTemp, $fileName);

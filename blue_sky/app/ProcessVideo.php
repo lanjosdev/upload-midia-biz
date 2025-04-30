@@ -89,7 +89,7 @@ class ProcessVideo
                         File::makeDirectory(storage_path('app/temp'), 0775, true);
                     }
 
-                    $cmd = "$ffmpegPath -i \"$pathTmp\" -c:v libx264 -crf 18 -c:a aac -b:a 128k -movflags +faststart \"$outputPath\" 2>&1";
+                    $cmd = "$ffmpegPath -i \"$pathTmp\" -c:v libx264 -crf 18 -c:a aac -b:a 128k -movflags +faststart -threads 0 \"$outputPath\" 2>&1";
 
                     $execOutput = shell_exec($cmd);
 
@@ -129,7 +129,7 @@ class ProcessVideo
 
                 File::move($video, $destinationPathOriginal . '/' . $fileName);
 
-                $cmdGetDuration = "$ffprobePath -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"$originalPath\" 2>&1";
+                $cmdGetDuration = "$ffprobePath -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 -threads 0 \"$originalPath\" 2>&1";
 
                 $duration = floatval(trim(shell_exec($cmdGetDuration)));
 
@@ -155,13 +155,13 @@ class ProcessVideo
 
                 $withFramePath = $destinationPathOriginal . '/temp_framed_' . $fileName;
             
-                $cmdFrame = "$ffmpegPath -y -i \"$originalPath\" -t 10 -r 30 -an -b:v 10000k -maxrate 10000k -bufsize 20000k -fs 20M -c:v libx264 -preset ultrafast -c:a copy \"$withFramePath\"";
+                $cmdFrame = "$ffmpegPath -y -i \"$originalPath\" -t 10 -r 30 -an -b:v 10000k -maxrate 10000k -bufsize 20000k -fs 20M -c:v libx264 -preset ultrafast -threads 0 -c:a copy \"$withFramePath\"";
                 shell_exec($cmdFrame);
 
                 // gerar resoluções (1080p e 320p)
                 // $cmd1080 = "$ffmpegPath -y -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v][1:v] overlay=0:0,scale=$resolutionScale1080\" \"$destinationPath1080/$fileName\"";
-                $cmd320 = "$ffmpegPath -y -noautorotate -b:v 10000k -maxrate 10000k -bufsize 20000k -fs 20M -i \"$withFramePath\" -i \"$moldura320Path\" -filter_complex \"[0:v]scale=$resolutionScale320,crop=320:448:0:0[scaled];[scaled][1:v]overlay=0:0\" -preset ultrafast \"$destinationPath320/$fileName\"";
-                $cmd1080 = "$ffmpegPath -y -noautorotate -b:v 10000k -maxrate 10000k -bufsize 20000k -fs 20M -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v]scale=1080:1920[scaled];[scaled][1:v]overlay=0:0\" -preset ultrafast \"$destinationPath1080/$fileName\"";
+                $cmd320 = "$ffmpegPath -y -noautorotate -b:v 10000k -maxrate 10000k -bufsize 20000k -fs 20M -threads 0 -i \"$withFramePath\" -i \"$moldura320Path\" -filter_complex \"[0:v]scale=$resolutionScale320,crop=320:448:0:0[scaled];[scaled][1:v]overlay=0:0\" -preset ultrafast \"$destinationPath320/$fileName\"";
+                $cmd1080 = "$ffmpegPath -y -noautorotate -b:v 10000k -maxrate 10000k -bufsize 20000k -fs 20M -threads 0 -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v]scale=1080:1920[scaled];[scaled][1:v]overlay=0:0\" -preset ultrafast \"$destinationPath1080/$fileName\"";
 
                 shell_exec($cmd1080);
                 shell_exec($cmd320);
