@@ -19,9 +19,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //logout
     Route::post('/logout', [LogoutController::class, 'logout']);
     //upload
-    Route::post('/upload', [MediaController::class, 'upload']);
+    // Route::post('/upload', [MediaController::class, 'upload']);
     //profile
     Route::get('/profile', [ProfileController::class, 'profile']);
+    
+    //upload-teste
+    Route::post('/upload', [MediaController::class, 'upload']);
 });
 
 Route::middleware(['token'])->group(function () {
