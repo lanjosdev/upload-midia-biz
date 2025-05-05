@@ -24,8 +24,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     //teste
     Route::post('/subir', [MediaController::class, 'subir']);
+    
     //teste
-    Route::post('/unir', [MediaController::class], 'unir');
+    Route::post('/unir', [MediaController::class, 'unir']);
     
     
     
