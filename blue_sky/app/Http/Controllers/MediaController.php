@@ -425,7 +425,14 @@ class MediaController extends Controller
             $filename = $request->input('filename');
             $totalChunks = (int) $request->input('totalChunks');
             $tmpDir = storage_path("app/chunks/$filename");
+
+            $path = storage_path("app/public/videos");
+            
             $finalPath = storage_path("app/public/videos/$filename");
+
+            if (!file_exists($path)) {
+                mkdir($path, 0777, true);
+            }
 
             $out = fopen($finalPath, 'ab');
 
