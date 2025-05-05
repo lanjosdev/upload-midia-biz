@@ -397,14 +397,15 @@ class MediaController extends Controller
             $filename = $request->input('filename');
             
             $tmpDir = storage_path("app/chunks/$filename");
-            
+
             if (!file_exists($tmpDir)) {
                 mkdir($tmpDir, 0777, true);
             }
+            
             $chunk->move($tmpDir, $index);
             
             return response()->json(['message' => "Chunk $index uploaded"]);
-            
+
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
