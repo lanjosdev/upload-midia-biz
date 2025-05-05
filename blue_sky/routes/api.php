@@ -20,14 +20,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [LogoutController::class, 'logout']);
     
     
-    //upload
-    // Route::post('/upload', [MediaController::class, 'upload']);
+    
+    
+    //teste
+    Route::post('/subir', [MediaController::class, 'subir']);
+    //teste
+    Route::post('/unir', [MediaController::class], 'unir');
+    
+    
     
     
     //profile
     Route::get('/profile', [ProfileController::class, 'profile']);
     
-    //upload-teste
+    //upload
     Route::post('/upload', [MediaController::class, 'upload']);
 });
 
