@@ -380,7 +380,7 @@ class MediaController extends Controller
             $chunkDir = storage_path("app/chunks/$filename");
 
             if (!file_exists($chunkDir)) {
-                mkdir($chunkDir, 0775, true);
+                mkdir($chunkDir, 0777, true);
             }
 
             $chunkName = $index . '_' . uniqid() .'_' . $filename .".mp4";
