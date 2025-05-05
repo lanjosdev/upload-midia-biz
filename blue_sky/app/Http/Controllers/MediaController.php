@@ -372,25 +372,38 @@ class MediaController extends Controller
     public function subir(Request $request)
     {
         try {
-            
-            $file = $request->file('chunk');
+
+            // $file = $request->file('chunk');
+            // $filename = $request->input('filename');
+            // $index = (int) $request->input('index');
+
+            // $chunkDir = storage_path("app/chunks/$filename");
+
+            // if (!file_exists($chunkDir)) {
+            //     mkdir($chunkDir, 0777, true);
+            // }
+
+            // $chunkName = $index . '_' . uniqid() .'_' . $filename .".mp4";
+
+            // $file->move($chunkDir, $chunkName);
+
+            // return response()->json([
+            //     'success' => true,
+            //     'message' => "Chunk $index uploaded",
+            // ]);
+
+            $chunk = $request->file('chunk');
+            $index = $request->input('index');
             $filename = $request->input('filename');
-            $index = (int) $request->input('index');
-
-            $chunkDir = storage_path("app/chunks/$filename");
-
-            if (!file_exists($chunkDir)) {
-                mkdir($chunkDir, 0777, true);
+            
+            $tmpDir = storage_path("app/chunks/$filename");
+            
+            if (!file_exists($tmpDir)) {
+                mkdir($tmpDir, 0777, true);
             }
-
-            $chunkName = $index . '_' . uniqid() .'_' . $filename .".mp4";
-
-            $file->move($chunkDir, $chunkName);
-
-            return response()->json([
-                'success' => true,
-                'message' => "Chunk $index uploaded",
-            ]);
+            $chunk->move($tmpDir, $index);
+            
+            return response()->json(['message' => "Chunk $index uploaded"]);
             
         } catch (QueryException $qe) {
             return response()->json([
