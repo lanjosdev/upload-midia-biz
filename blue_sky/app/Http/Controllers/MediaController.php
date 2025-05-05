@@ -346,8 +346,6 @@ class MediaController extends Controller
             $extension = $video->getClientOriginalExtension();
             $pathTemp = $video->getPathname();
 
-            // dd();
-
             if ($validatedData && File::exists($fullPath)) {
                 ProcessVideoJob::dispatch($fullPath, $pathTemp, $extension, $regionId);
 
