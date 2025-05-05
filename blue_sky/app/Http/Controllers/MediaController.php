@@ -330,8 +330,8 @@ class MediaController extends Controller
 
             $regionId = $user->fk_region_id;
 
-            $resolutionScale1080 = '1080x1920';
-            $resolutionScale320 = '320x480';
+            // $resolutionScale1080 = '1080x1920';
+            // $resolutionScale320 = '320x480';
 
             $folderTemp = 'temp';
 
@@ -349,7 +349,7 @@ class MediaController extends Controller
             // dd();
 
             if ($validatedData && File::exists($fullPath)) {
-                ProcessVideoJob::dispatch($fullPath, $pathTemp, $extension, $regionId, $resolutionScale1080, $resolutionScale320);
+                ProcessVideoJob::dispatch($fullPath, $pathTemp, $extension, $regionId);
 
                 return response()->json([
                     'success' => true,
@@ -372,17 +372,20 @@ class MediaController extends Controller
     public function subir(Request $request)
     {
         try {
-            $chunk = $request->file('chunk');
-            $index = $request->input('index');
+            
+            $file = $request->file('chunk');
             $filename = $request->input('filename');
+            $index = (int) $request->input('index');
 
-            $tmpDir = storage_path("app/chunks/$filename");
+            $chunkDir = storage_path("app/chunks/$filename");
 
-            if (!file_exists($tmpDir)) {
-                mkdir($tmpDir, 0775, true);
+            if (!file_exists($chunkDir)) {
+                mkdir($chunkDir, 0775, true);
             }
 
-            $chunk->move($tmpDir, $index);
+            $chunkName = $index . '_' . uniqid() .'_' . $filename .".mp4";
+
+            $file->move($chunkDir, $chunkName);
 
             return response()->json([
                 'success' => true,
@@ -409,9 +412,9 @@ class MediaController extends Controller
             $totalChunks = (int) $request->input('totalChunks');
             $tmpDir = storage_path("app/chunks/$filename");
             $finalPath = storage_path("app/public/videos/$filename");
-            
+
             $out = fopen($finalPath, 'ab');
-            
+
             for ($i = 0; $i < $totalChunks; $i++) {
                 $chunkPath = "$tmpDir/$i";
                 $in = fopen($chunkPath, 'rb');

@@ -27,13 +27,13 @@ class ProcessVideo
         $this->utils = $utils;
     }
 
-    public function video($videoPath, $pathTemp, $extension, $regionId, $resolutionScale1080, $resolutionScale320)
+    public function video($videoPath, $pathTemp, $extension, $regionId)
     {
 
         $originalPath = null;
         $fileName = null;
-        $destinationPath1080 = null;
-        $destinationPath320 = null;
+        // $destinationPath1080 = null;
+        // $destinationPath320 = null;
         $infoUsersLocationUf = null;
 
         try {
@@ -160,8 +160,8 @@ class ProcessVideo
 
                 // gerar resoluções (1080p e 320p)
                 // $cmd1080 = "$ffmpegPath -y -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v][1:v] overlay=0:0,scale=$resolutionScale1080\" \"$destinationPath1080/$fileName\"";
-                $cmd320 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$moldura320Path\" -filter_complex \"[0:v]scale=$resolutionScale320,crop=320:448:0:0[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath320/$fileName\"";
-                $cmd1080 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v]scale=$resolutionScale1080:[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath1080/$fileName\"";
+                $cmd320 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$moldura320Path\" -filter_complex \"[0:v]scale=320:480,crop=320:448:0:0[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath320/$fileName\"";
+                $cmd1080 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v]scale=1080:1920:[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath1080/$fileName\"";
 
                 shell_exec($cmd1080);
                 shell_exec($cmd320);

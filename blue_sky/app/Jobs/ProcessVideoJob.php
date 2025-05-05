@@ -41,14 +41,14 @@ class ProcessVideoJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($videoPath, $pathTemp, $extension, $regionId, $resolutionScale1080, $resolutionScale320)
+    public function __construct($videoPath, $pathTemp, $extension, $regionId)
     {
         $this->videoPath = $videoPath;
         $this->pathTemp = $pathTemp;
         $this->extension = $extension;
         $this->regionId = $regionId;
-        $this->resolutionScale1080 = $resolutionScale1080;
-        $this->resolutionScale320 = $resolutionScale320;
+        // $this->resolutionScale1080 = $resolutionScale1080;
+        // $this->resolutionScale320 = $resolutionScale320;
     }
 
     public function handle(ProcessVideo $processVideo)
@@ -61,8 +61,8 @@ class ProcessVideoJob implements ShouldQueue
                 $this->pathTemp,
                 $this->extension,
                 $this->regionId,
-                $this->resolutionScale1080,
-                $this->resolutionScale320
+                // $this->resolutionScale1080,
+                // $this->resolutionScale320
             );
 
             $data = $result->getData(true);
