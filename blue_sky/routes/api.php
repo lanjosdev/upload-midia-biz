@@ -18,24 +18,18 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::middleware(['auth:sanctum'])->group(function () {
     //logout
     Route::post('/logout', [LogoutController::class, 'logout']);
-    
-    
-    
-    
-    //teste
-    Route::post('/subir', [MediaController::class, 'subir']);
-    
-    //teste
-    Route::post('/unir', [MediaController::class, 'unir']);
-    
-    
-    
-    
     //profile
     Route::get('/profile', [ProfileController::class, 'profile']);
+
     
-    //upload
-    Route::post('/upload', [MediaController::class, 'upload']);
+    //upload-chunks 
+    Route::post('/upload-chunks', [MediaController::class, 'chunks']);
+    //union-chunks
+    Route::post('/union-chunks', [MediaController::class, 'gatheringPiecesAndAddingToTheQueue']);
+    
+    
+    //teste
+    // Route::post('/unir', [MediaController::class, 'unir']);
 });
 
 Route::middleware(['token'])->group(function () {

@@ -317,41 +317,91 @@ class MediaController extends Controller
         }
     }
 
-    public function upload(Request $request)
+    public function gatheringPiecesAndAddingToTheQueue(Request $request)
     {
         try {
+            dd();
+            // $validatedData = $request->validate(
+            //     $this->media->rulesMedias(),
+            //     $this->media->feedbackMedias()
+            // );
 
-            $validatedData = $request->validate(
-                $this->media->rulesMedias(),
-                $this->media->feedbackMedias()
-            );
+            // $user = $request->user();
+
+            // $regionId = $user->fk_region_id;
+
+            // // $resolutionScale1080 = '1080x1920';
+            // // $resolutionScale320 = '320x480';
+
+            // $folderTemp = 'temp';
+
+            // if (!File::exists($folderTemp)) {
+            //     File::makeDirectory(($folderTemp), 0775, true);
+            // }
+
+            // $video = $request->file('video');
+            // $fileName = uniqid() . '.' . $video->getClientOriginalExtension();
+            // $video->move($folderTemp, $fileName);
+
+            // $fullPath = $folderTemp . DIRECTORY_SEPARATOR . $fileName;
+            // $extension = $video->getClientOriginalExtension();
+            // $pathTemp = $video->getPathname();
+
+            // if ($validatedData && File::exists($fullPath)) {
+            //     ProcessVideoJob::dispatch($fullPath, $pathTemp, $extension, $regionId);
+
+            //     return response()->json([
+            //         'success' => true,
+            //         'message' => 'Vídeo entrou na fila.'
+            //     ]);
+            // }
+
+            // $validatedData = $request->validate(
+            //     $this->media->rulesMedias(),
+            //     $this->media->feedbackMedias()
+            // );
 
             $user = $request->user();
-
             $regionId = $user->fk_region_id;
 
-            // $resolutionScale1080 = '1080x1920';
-            // $resolutionScale320 = '320x480';
+            $filename = $request->input('filename');
+            $totalChunks = (int) $request->input('totalChunks');
 
-            $folderTemp = 'temp';
+            $tmpDir = storage_path("app/chunks/$filename");
+            $finalFolder = storage_path("app/public/videos");
+            $finalPath = "$finalFolder/$filename";
 
-            if (!File::exists($folderTemp)) {
-                File::makeDirectory(($folderTemp), 0775, true);
+            // Cria a pasta de destino se não existir
+            if (!file_exists($finalFolder)) {
+                mkdir($finalFolder, 0777, true);
             }
-            $video = $request->file('video');
-            $fileName = uniqid() . '.' . $video->getClientOriginalExtension();
-            $video->move($folderTemp, $fileName);
 
-            $fullPath = $folderTemp . DIRECTORY_SEPARATOR . $fileName;
-            $extension = $video->getClientOriginalExtension();
-            $pathTemp = $video->getPathname();
+            // Junta os chunks
+            $out = fopen($finalPath, 'ab');
 
-            if ($validatedData && File::exists($fullPath)) {
-                ProcessVideoJob::dispatch($fullPath, $pathTemp, $extension, $regionId);
+            for ($i = 0; $i < $totalChunks; $i++) {
+                $chunkPath = "$tmpDir/$i";
+                if (file_exists($chunkPath)) {
+                    $in = fopen($chunkPath, 'rb');
+                    stream_copy_to_stream($in, $out);
+                    fclose($in);
+                    unlink($chunkPath); // remove o chunk após usar
+                }
+            }
+
+            fclose($out);
+            rmdir($tmpDir); // remove o diretório temporário de chunks
+
+            // Pega a extensão do arquivo
+            $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+            // Envia para a fila de processamento
+            if (file_exists($finalPath)) {
+                ProcessVideoJob::dispatch($finalPath, $finalPath, $extension, $regionId);
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Vídeo entrou na fila.'
+                    'message' => 'Vídeo montado e entrou na fila.'
                 ]);
             }
         } catch (QueryException $qe) {
@@ -367,29 +417,9 @@ class MediaController extends Controller
         }
     }
 
-    public function subir(Request $request)
+    public function chunks(Request $request)
     {
         try {
-
-            // $file = $request->file('chunk');
-            // $filename = $request->input('filename');
-            // $index = (int) $request->input('index');
-
-            // $chunkDir = storage_path("app/chunks/$filename");
-
-            // if (!file_exists($chunkDir)) {
-            //     mkdir($chunkDir, 0777, true);
-            // }
-
-            // $chunkName = $index . '_' . uniqid() .'_' . $filename .".mp4";
-
-            // $file->move($chunkDir, $chunkName);
-
-            // return response()->json([
-            //     'success' => true,
-            //     'message' => "Chunk $index uploaded",
-            // ]);
-
             $chunk = $request->file('chunk');
             $index = $request->input('index');
             $filename = $request->input('filename');
@@ -402,8 +432,10 @@ class MediaController extends Controller
 
             $chunk->move($tmpDir, $index);
 
-            return response()->json(['message' => "Chunk $index uploaded"]);
-            
+            return response()->json([
+                'success' => true,
+                'message' => "Chunk $index uploaded"
+            ]);
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
@@ -425,7 +457,7 @@ class MediaController extends Controller
             $tmpDir = storage_path("app/chunks/$filename");
 
             $path = storage_path("app/public/videos");
-            
+
             $finalPath = storage_path("app/public/videos/$filename");
 
             if (!file_exists($path)) {
@@ -450,7 +482,6 @@ class MediaController extends Controller
                 'success' => true,
                 'message' => 'Arquivo final salvo com sucesso',
             ]);
-            
         } catch (QueryException $qe) {
             return response()->json([
                 'success' => false,
