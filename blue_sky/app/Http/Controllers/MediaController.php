@@ -249,7 +249,7 @@ class MediaController extends Controller
                     "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
                     "-i \"$moldura320Path\" " .              // input 1: moldura com alpha
                     "-filter_complex \"" .
-                    "[0:v]scale=320:480,crop=320:448:0:0.32[bg]; " .               
+                    "[0:v]scale=320:480,crop=320:448:0:32[bg]; " .               
                     "[1:v]format=yuva420p[moldura_alpha]; " .                  
                     "[bg][moldura_alpha]overlay=0:0[out]" .
                     "\" -map \"[out]\" -t 10 -r 30 -an -c:v libx264 -preset ultrafast " .
