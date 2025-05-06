@@ -29,7 +29,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     
     //teste
-    // Route::post('/unir', [MediaController::class, 'unir']);
+    Route::post('/upload-teste', [MediaController::class, 'uploadPrimary']);
 });
 
 Route::middleware(['token'])->group(function () {

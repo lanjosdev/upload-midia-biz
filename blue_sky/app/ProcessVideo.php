@@ -142,26 +142,56 @@ class ProcessVideo
 
                 $molduraPath = null;
 
+                // if ($infoUsersLocationUf === 'CE') {
+                //     $molduraPath = public_path('Recife.png');
+                //     $moldura320Path = public_path('pe.png');
+                // } elseif ($infoUsersLocationUf === 'PE') {
+                //     $molduraPath = public_path('Fortal.png');
+                //     $moldura320Path = public_path('ce.png');
+                // } else {
+                //     $molduraPath = public_path('RJ.png');
+                //     $moldura320Path = public_path('rjmin.png');
+                // }
+
                 if ($infoUsersLocationUf === 'CE') {
-                    $molduraPath = public_path('Recife.png');
-                    $moldura320Path = public_path('pe.png');
+                    $molduraPath = public_path('fortaleza1080.mov');
+                    $moldura320Path = public_path('fortaleza448.mov');
                 } elseif ($infoUsersLocationUf === 'PE') {
-                    $molduraPath = public_path('Fortal.png');
-                    $moldura320Path = public_path('ce.png');
+                    $molduraPath = public_path('recife1080.mov');
+                    $moldura320Path = public_path('recife448.mov');
                 } else {
-                    $molduraPath = public_path('RJ.png');
-                    $moldura320Path = public_path('rjmin.png');
+                    $molduraPath = public_path('rj1080.mov');
+                    $moldura320Path = public_path('rj448.mov');
                 }
 
                 $withFramePath = $destinationPathOriginal . '/temp_framed_' . $fileName;
-            
+
                 $cmdFrame = "$ffmpegPath -y -i \"$originalPath\" -t 10 -r 30 -an -c:v libx264 -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$withFramePath\"";
                 shell_exec($cmdFrame);
 
                 // gerar resoluções (1080p e 320p)
-                // $cmd1080 = "$ffmpegPath -y -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v][1:v] overlay=0:0,scale=$resolutionScale1080\" \"$destinationPath1080/$fileName\"";
-                $cmd320 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$moldura320Path\" -filter_complex \"[0:v]scale=320:480,crop=320:448:0:0[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath320/$fileName\"";
-                $cmd1080 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v]scale=1080:1920:[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath1080/$fileName\"";
+                ////////////////////////// $cmd1080 = "$ffmpegPath -y -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v][1:v] overlay=0:0,scale=$resolutionScale1080\" \"$destinationPath1080/$fileName\"";
+                // $cmd320 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$moldura320Path\" -filter_complex \"[0:v]scale=320:480,crop=320:448:0:0[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath320/$fileName\"";
+                // $cmd1080 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v]scale=1080:1920:[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath1080/$fileName\"";
+
+                $cmd1080 = "$ffmpegPath -y " .
+                    "-i \"$withFramePath\" " .               // vídeo de fundo (principal)
+                    "-i \"$molduraPath\" " .                 // vídeo com fundo transparente (com alpha)
+                    "-filter_complex \"[1:v]format=yuva420p,fade=t=in:st=0:d=1:alpha=1[moldura_alpha]; " .
+                    "[0:v][moldura_alpha]overlay=0:0:format=auto,scale=1080:1920\" " . // overlay com alpha
+                    "-t 10 -r 30 -an -c:v libx264 " .
+                    "-preset ultrafast " .
+                    "\"$destinationPath1080/$fileName\"";
+
+                $cmd320 = "$ffmpegPath -y " .
+                    "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
+                    "-i \"$moldura320Path\" " .              // input 1: moldura com alpha
+                    "-filter_complex \"" .
+                    "[0:v]scale=320:480,crop=320:448:32:0[bg]; " .
+                    "[1:v]format=yuva420p[moldura_alpha]; " .
+                    "[bg][moldura_alpha]overlay=0:0[out]" .
+                    "\" -map \"[out]\" -t 10 -r 30 -an -c:v libx264 -preset ultrafast " .
+                    "\"$destinationPath320/$fileName\"";
 
                 shell_exec($cmd1080);
                 shell_exec($cmd320);
