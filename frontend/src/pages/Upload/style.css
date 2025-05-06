@@ -117,6 +117,7 @@
         .container_btns {
             /* justify-content: center; */
             width: 100%;
+            flex-direction: column;
 
             .btn {
                 height: 4.4rem;

@@ -1,7 +1,5 @@
 // Hooks / Libs:
 import { useEffect, useState } from "react";
-// import { FFmpeg } from "@ffmpeg/ffmpeg";
-// import { toBlobURL, fetchFile } from "@ffmpeg/util";
 
 // API:
 import UploadService from "../../api/uploadService";
@@ -32,7 +30,8 @@ export default function Upload() {
         min: 10,
         max: 13
     };
-    const megabyteNominal = 50;
+    const megabyteNominal = 40;
+    const megabyteChunkNominal = 3;
     const megabyteLimit = megabyteNominal * 1048576;
     const infosNull = {
         name_file: null,
@@ -55,12 +54,16 @@ export default function Upload() {
 
     const [progress, setProgress] = useState(0); 
     const [uploadSuccess, setUploadSuccess] = useState(false); 
+    const [uploadSuccessNode, setUploadSuccessNode] = useState(false); 
+    const [uploadSuccessChunk, setUploadSuccessChunk] = useState(false); 
+
+    const [timeFileFull, setTimeFileFull] = useState(0); 
+    const [timeFileNode, setTimeFileNode] = useState(0); 
+    const [timeChunk, setTimeChunk] = useState(0); 
+
+
 
     
-    // const ffmpegRef = useRef(new FFmpeg());
-
-
-
     useEffect(()=> {
         function initializePage() {
             console.log('Effect /Upload');
@@ -84,57 +87,6 @@ export default function Upload() {
         }
         setProgress(0);
     }
-
-    // const compressVideo = async (file) => {  
-    //     // Importa dinamicamente o ffmpeg
-    //     const { createFFmpeg, fetchFile } = await import("@ffmpeg/ffmpeg");
-
-    //     const ffmpeg = createFFmpeg({ log: true });  
-    //     await ffmpeg.load();  
-    //     ffmpeg.FS("writeFile", "input.mp4", await fetchFile(file));  
-      
-    //     // Comando FFmpeg: compressão com codec H.264, mantendo resolução  
-    //     await ffmpeg.run(  
-    //       "-i", "input.mp4",  
-    //       "-c:v", "libx264",  
-    //       "-crf", "23", // Ajuste de qualidade (23 é equilibrado)  
-    //       "-preset", "fast",  
-    //       "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease",  
-    //       "output.mp4"  
-    //     );  
-      
-    //     const compressedData = ffmpeg.FS("readFile", "output.mp4");  
-    //     return new File([compressedData.buffer], "compressed.mp4", { type: "video/mp4" });  
-    // };  
-
-    // Compressão mantendo dimensões originais
-    // const compressVideo = async (file) => {
-    //     setProgress(100);
-    //     await loadFFmpeg();
-
-    //     ffmpeg.on('progress', ({ progress }) => {
-    //     setProgress(Math.round(progress * 100));
-    //     });
-
-    //     // Escrever o arquivo no sistema virtual do FFmpeg
-    //     await ffmpeg.writeFile('input.mp4', await fetchFile(file));
-
-    //     // Comando de compressão (ajuste parâmetros conforme necessário)
-    //     await ffmpeg.exec([
-    //     '-i', 'input.mp4',
-    //     '-c:v', 'libx264',      // Codec de vídeo
-    //     '-crf', '28',           // Qualidade (23-28 é recomendado)
-    //     '-preset', 'medium',    // Balanceamento velocidade/compressão
-    //     '-c:a', 'aac',          // Codec de áudio
-    //     '-b:a', '128k',         // Taxa de bits do áudio
-    //     '-movflags', '+faststart', // Otimização para streaming
-    //     'output.mp4'
-    //     ]);
-
-    //     // Ler o resultado
-    //     const data = await ffmpeg.readFile('output.mp4');
-    //     return new File([data.buffer], 'compressed.mp4', { type: 'video/mp4' });
-    // };
 
     function handleChangeFile(e) {
         const file = e.target.files?.[0] || null;
@@ -166,6 +118,8 @@ export default function Upload() {
         setValidationErrors([]);
         setLoadingFilePreview(true);
         setUploadSuccess(false);
+        setUploadSuccessNode(false);
+        setUploadSuccessChunk(false);
 
         try {
             const fileUrl = URL.createObjectURL(file);
@@ -230,19 +184,20 @@ export default function Upload() {
     // SUBMIT API:
     async function handleUploadVideo() {
         setLoadingSubmit(true);
+        const startTime = performance.now();
+        setProgress(0)
 
         // VALIDAÇÕES:
         // console.log('Original', selectedFile)
-        // const compressedFile = await compressVideo(selectedFile);
-        // console.log('Compressado', compressedFile)
         if(!selectedFile) {
             toast.warn('Não há arquivo para fazer upload')
             setLoadingSubmit(false);
+            resetCurrentData();
             return;
         }
 
         // Request:
-        resetCurrentData(true);
+        // resetCurrentData(true);
         try {
             const response = await UploadService.UploadVideo(selectedFile, (progress) => {
                 setProgress(progress);
@@ -271,8 +226,171 @@ export default function Upload() {
 
 
         // console.log('FIIIIIM')
+        const endTime = performance.now();
+        const seconds = ((endTime - startTime) / 1000).toFixed(2);
+        setTimeFileFull(seconds);
         setLoadingSubmit(false);
-        resetCurrentData();
+        // resetCurrentData();
+    }
+
+    async function handleUploadVideoNode() {
+        setLoadingSubmit(true);
+        const startTime = performance.now();
+        setProgress(0)
+
+        // VALIDAÇÕES:
+        // console.log('Original', selectedFile)
+        if(!selectedFile) {
+            toast.warn('Não há arquivo para fazer upload')
+            setLoadingSubmit(false);
+            resetCurrentData();
+            return;
+        }
+
+        // Request:
+        // resetCurrentData(true);
+        try {
+            const response = await UploadService.UploadVideoNode(selectedFile, (progress) => {
+                setProgress(progress);
+            });
+            console.log(response);  
+
+            if(response.url_video) {
+                toast.success('Vídeo enviado com sucesso.');
+                setUploadSuccessNode(true);
+            }
+            else {
+                toast.error('Erro inesperado.');
+            }
+        }
+        catch(error) {
+            console.error('DETALHES DO ERRO: ', error);
+            // toast.error('Houve algum erro.');
+
+            setValidationErrors(['Falha no upload.']);
+            // resetCurrentData();
+        }         
+
+
+        // console.log('FIIIIIM')
+        const endTime = performance.now();
+        const seconds = ((endTime - startTime) / 1000).toFixed(2);
+        setTimeFileNode(seconds);
+        setLoadingSubmit(false);
+        // resetCurrentData();
+    }
+
+
+    // function uploadVideoInChunks(file, chunkSize = 1 * 1024 * 1024) {
+    //     const totalChunks = Math.ceil(file.size / chunkSize);
+    //     let currentChunk = 0;
+    //     const startTime = performance.now();
+    
+    //     function sendChunk() {
+    //         const start = currentChunk * chunkSize;
+    //         const end = Math.min(start + chunkSize, file.size);
+    //         const chunk = file.slice(start, end);
+    
+    //         const formData = new FormData();
+    //         formData.append('chunk', chunk);
+    //         formData.append('chunkNumber', currentChunk);
+    //         formData.append('totalChunks', totalChunks);
+    //         formData.append('fileName', file.name);
+    
+    //         fetch('http://upload-chunks.test/upload-chunk', {
+    //             method: 'POST',
+    //             body: formData
+    //         })
+    //         .then(res => res.json())
+    //         .then(() => {
+    //             currentChunk++;
+    //             const percent = (currentChunk / totalChunks) * 100;
+    //             chunkProgress.value = percent;
+    
+    //             if (currentChunk < totalChunks) {
+    //                 sendChunk();
+    //             } else {
+    //                 const endTime = performance.now();
+    //                 const seconds = ((endTime - startTime) / 1000).toFixed(2);
+    //                 chunkTime.innerText = Tempo: ${seconds}s;
+    //             }
+    //         })
+    //         .catch(console.error);
+    //     }
+    
+    //     sendChunk();
+    // }
+
+    async function handleUploadVideoChunks() {
+        setLoadingSubmit(true);
+        const startTime = performance.now();
+        setProgress(0)
+
+
+        // VALIDAÇÕES:
+        // console.log('Arquivo', selectedFile)
+        if(!selectedFile) {
+            toast.warn('Não há arquivo para fazer upload')
+            setLoadingSubmit(false);
+            resetCurrentData();
+            return;
+        }
+
+        // REQUEST:
+        // resetCurrentData(true);
+        try {
+            // Tratamento de chunks
+            const CHUNK_SIZE = megabyteChunkNominal * 1024 * 1024; // 5MB por chunk
+            const totalChunks = Math.ceil(selectedFile.size / CHUNK_SIZE);      
+            const fileId = `${Date.now()}-${selectedFile.name}`;
+            // console.log(fileId, CHUNK_SIZE, totalChunks)
+
+            for(let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+                const start = chunkIndex * CHUNK_SIZE;
+                // const end = start + CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, selectedFile.size);
+                const chunk = selectedFile.slice(start, end);
+
+        
+                // Envie o chunk para API
+                // console.log('Envio de chunk index:', chunkIndex)
+                const result = await UploadService.UploadVideoChunk(chunk, chunkIndex, fileId);
+                console.log(`Chunck(${chunkIndex+1} de ${totalChunks}) enviado:`, result)
+        
+                setProgress(Math.round(((chunkIndex) / totalChunks) * 100));
+                // console.warn('Chunk index OK:', chunkIndex)
+            }
+
+
+            // Notifique a API para combinar os chunks após o upload
+            const response = await UploadService.UploadVideoCombineChunks(fileId, totalChunks);
+            console.log(response);
+            
+            if(response.success) {
+                setProgress(100);
+                toast.success('Vídeo enviado com sucesso.');
+                setUploadSuccessChunk(true);
+            }
+            else if(response.success == false) {
+                console.warn(response.message);
+                toast.warn(response.message);
+            }
+            else {
+                toast.error('Erro inesperado.');
+            }
+        }
+        catch(error) {
+            console.error('DETALHES DO ERRO:', error);
+            setValidationErrors(['Falha no upload.']); 
+        }
+
+        
+        // console.log('FIMMMMMMMM')
+        const endTime = performance.now();
+        const seconds = ((endTime - startTime) / 1000).toFixed(2);
+        setTimeChunk(seconds);
+        setLoadingSubmit(false);
+        // resetCurrentData();
     }
   
 
@@ -366,16 +484,42 @@ export default function Upload() {
                             Selecione um vídeo
                         </label>
 
-                        <button className="btn primary"
+                        {/* <button className="btn primary"
                         onClick={handleUploadVideo}
                         disabled={!selectedFile || validationErrors.length > 0 || loadingFilePreview || loadingSubmit || uploadSuccess}
                         >
                             {loadingSubmit ? 
                                 <span>Enviando...</span>
                             : uploadSuccess ? (
-                                <span><i className="bi bi-check-circle-fill"></i> Enviado</span>
+                                <span><i className="bi bi-check-circle-fill"></i> Enviado (Tempo: {timeFileFull}s)</span>
                             ) : (
-                                <span>Fazer upload</span>
+                                <span>Upload vídeo inteiro</span>
+                            )}
+                        </button> */}
+                        
+                        <button className="btn primary"
+                        onClick={handleUploadVideoNode}
+                        disabled={!selectedFile || validationErrors.length > 0 || loadingFilePreview || loadingSubmit || uploadSuccessNode}
+                        >
+                            {loadingSubmit ? 
+                                <span>Enviando...</span>
+                            : uploadSuccessNode ? (
+                                <span><i className="bi bi-check-circle-fill"></i> Enviado no Render (Tempo: {timeFileNode}s)</span>
+                            ) : (
+                                <span>Upload vídeo inteiro (Render)</span>
+                            )}
+                        </button>
+
+                        <button className="btn primary"
+                        onClick={handleUploadVideoChunks}
+                        disabled={!selectedFile || validationErrors.length > 0 || loadingFilePreview || loadingSubmit || uploadSuccessChunk}
+                        >
+                            {loadingSubmit ? 
+                                <span>Enviando...</span>
+                            : uploadSuccessChunk ? (
+                                <span><i className="bi bi-check-circle-fill"></i> Enviado via chunks (Tempo: {timeChunk}s)</span>
+                            ) : (
+                                <span>Upload vídeo via chunks ({megabyteChunkNominal}MB cada)</span>
                             )}
                         </button>
                     </div>
