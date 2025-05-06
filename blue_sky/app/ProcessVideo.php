@@ -181,9 +181,9 @@ class ProcessVideo
                 }
 
                 $data = [
-                    'media_link_original' => asset("videos/original/$fileName"),
-                    'media_link_1080' => asset("videos/videos_1080/$fileName"),
-                    'media_link_320' => asset("videos/videos_320/$fileName"),
+                    'media_link_original' => asset("public/videos/original/$fileName"),
+                    'media_link_1080' => asset("public/videos/videos_1080/$fileName"),
+                    'media_link_320' => asset("public/videos/videos_320/$fileName"),
                     'fk_region_id' => $regionId,
                 ];
 
