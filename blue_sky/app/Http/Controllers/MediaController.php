@@ -97,9 +97,11 @@ class MediaController extends Controller
                 'data' => $data,
                 'count_data' => count($data)
             ]);
+            
         } catch (QueryException $qe) {
 
             Log::error('Error DB: ' . $qe->getMessage());
+            
 
             return response()->json([
                 'success' => false,

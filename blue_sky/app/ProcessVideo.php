@@ -177,7 +177,7 @@ class ProcessVideo
                 $cmd1080 = "$ffmpegPath -y " .
                     "-i \"$withFramePath\" " .               // vídeo de fundo (principal)
                     "-i \"$molduraPath\" " .                 // vídeo com fundo transparente (com alpha)
-                    "-filter_complex \"[1:v]format=yuva420p,fade=t=in:st=0:d=1:alpha=1[moldura_alpha]; " .
+                    "-filter_complex \"[1:v]format=rgba,fade=t=in:st=0:d=1:alpha=1[moldura_alpha]; " .
                     "[0:v][moldura_alpha]overlay=0:0:format=auto,scale=1080:1920\" " . // overlay com alpha
                     "-t 10 -r 30 -an -c:v libx264 " .
                     "-preset ultrafast " .
@@ -188,7 +188,7 @@ class ProcessVideo
                     "-i \"$moldura320Path\" " .              // input 1: moldura com alpha
                     "-filter_complex \"" .
                     "[0:v]scale=320:480,crop=320:448:32:0[bg]; " .
-                    "[1:v]format=yuva420p[moldura_alpha]; " .
+                    "[1:v]format=rgba[moldura_alpha]; " .
                     "[bg][moldura_alpha]overlay=0:0[out]" .
                     "\" -map \"[out]\" -t 10 -r 30 -an -c:v libx264 -preset ultrafast " .
                     "\"$destinationPath320/$fileName\"";
