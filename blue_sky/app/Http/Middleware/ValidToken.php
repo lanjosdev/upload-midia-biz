@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class ValidToken
@@ -17,7 +18,11 @@ class ValidToken
     {
         $token = $request->bearerToken();
 
-        if ($token === env('API_TOKEN')) {
+        $infoDB = DB::table('app_token')
+            ->where('id', 1)
+            ->first();
+
+        if ($token === $infoDB->token) {
             return $next($request);
         } else {
             return response()->json([

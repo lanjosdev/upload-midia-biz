@@ -427,6 +427,9 @@ class MediaController extends Controller
             // Pega a extensão do arquivo
             $extension = pathinfo($filename, PATHINFO_EXTENSION);
 
+            echo $filename;
+            echo $extension;
+
             // Envia para a fila de processamento
             if (file_exists($fullPath)) {
                 ProcessVideoJob::dispatch($fullPath, $filename, $extension, $regionId);
