@@ -189,7 +189,7 @@ class ProcessVideo
                     "-filter_complex \"" .
                     "[0:v]scale=320:480,crop=320:448:32:0[bg]; " .
                     "[1:v]format=rgba[moldura_alpha]; " .
-                    "[bg][moldura_alpha]overlay=0:0[out]" .
+                    "[bg][moldura_alpha]format=auto,overlay=0:0[out]" .
                     "\" -map \"[out]\" -t 10 -r 30 -an -c:v libx264 -preset ultrafast " .
                     "\"$destinationPath320/$fileName\"";
 
