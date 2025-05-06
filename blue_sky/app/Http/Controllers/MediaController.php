@@ -320,7 +320,7 @@ class MediaController extends Controller
     public function gatheringPiecesAndAddingToTheQueue(Request $request)
     {
         try {
-            dd();
+            // dd();
             // $validatedData = $request->validate(
             //     $this->media->rulesMedias(),
             //     $this->media->feedbackMedias()
