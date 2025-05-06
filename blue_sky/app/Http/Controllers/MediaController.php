@@ -427,8 +427,10 @@ class MediaController extends Controller
             // Pega a extensão do arquivo
             $extension = pathinfo($filename, PATHINFO_EXTENSION);
 
-            echo $filename;
-            echo $extension;
+            echo "name" . $filename;
+            echo "br";
+            echo "br";
+            echo "estensão" . $extension;
 
             // Envia para a fila de processamento
             if (file_exists($fullPath)) {
