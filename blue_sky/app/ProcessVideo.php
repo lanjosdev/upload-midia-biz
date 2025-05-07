@@ -184,22 +184,22 @@ class ProcessVideo
                 //     // "-preset veryslow " .
                 //     "\"$destinationPath1080/$fileName\"";
 
-                // $cmd320 = "$ffmpegPath -y " .
-                //     "-i \"$withFramePath\" " .
-                //     "-i \"$moldura320Path\" " .
-                //     "-filter_complex \"" .
-                //     "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
-                //     "[1:v]format=rgba[moldura_alpha]; " .
-                //     "[bg][moldura_alpha]overlay=0:0[out]\" " .
-                //     "-map \"[out]\" -t 10 -r 30 -an " .
-                //     "-c:v libx264 " .
-                //     // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
-                //     // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
-                //     // "-maxrate 10000k " .
-                //     // "-bufsize 20000k " .
-                //     "-preset fast " .
-                //     // "-preset veryslow " .
-                //     "\"$destinationPath320/$fileName\"";
+                $cmd320 = "$ffmpegPath -y " .
+                    "-i \"$withFramePath\" " .
+                    "-i \"$moldura320Path\" " .
+                    "-filter_complex \"" .
+                    "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
+                    "[1:v]format=rgba[moldura_alpha]; " .
+                    "[bg][moldura_alpha]overlay=0:0[out]\" " .
+                    "-map \"[out]\" -t 10 -r 30 -an " .
+                    "-c:v libx264 " .
+                    // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
+                    // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
+                    // "-maxrate 10000k " .
+                    // "-bufsize 20000k " .
+                    "-preset fast " .
+                    // "-preset veryslow " .
+                    "\"$destinationPath320/$fileName\"";
 
                 $cmd1080 = "$ffmpegPath -y " .
                     "-i \"$withFramePath\" " .
@@ -210,14 +210,14 @@ class ProcessVideo
                     // "-preset veryslow " .
                     "\"$destinationPath1080/$fileName\"";
 
-                $cmd320 = "$ffmpegPath -y " .
-                    "-i \"$withFramePath\" " .
-                    "-i \"$moldura320Path\" " .
-                    "-filter_complex \"" .
-                    "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
-                    "$exit " .
-                    // "-preset veryslow " .
-                    "\"$destinationPath320/$fileName\"";
+                // $cmd320 = "$ffmpegPath -y " .
+                //     "-i \"$withFramePath\" " .
+                //     "-i \"$moldura320Path\" " .
+                //     "-filter_complex \"" .
+                //     "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
+                //     "$exit " .
+                //     // "-preset veryslow " .
+                //     "\"$destinationPath320/$fileName\"";
 
                 shell_exec($cmd1080);
                 shell_exec($cmd320);
