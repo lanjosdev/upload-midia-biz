@@ -431,7 +431,7 @@ class MediaController extends Controller
 
             // Cria a pasta de destino se não existir
             if (!file_exists($finalFolder)) {
-                mkdir($finalFolder, 0777, true);
+                mkdir($finalFolder, 0775, true);
             }
 
             // Junta os chunks
