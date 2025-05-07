@@ -4,6 +4,9 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
+// Configs App:
+import './config/appConfig';
+
 // Contexts Providers:
 import { UserProvider } from './contexts/userContext';
 

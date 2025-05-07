@@ -1,0 +1,13 @@
+{
+    "VIDEO": {
+        "max_mb_video": 50,
+        "duration_limits": {
+            "min": 10,
+            "max": 13
+        }
+    },
+    "UPLOAD": {
+        "max_mb_chunk": 3
+    },
+    "COOKIES_EXPIRES": null
+}

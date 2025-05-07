@@ -112,10 +112,10 @@ html {
     min-height: 100dvh; */
 
     /* Quando é App */
-    border: 3px solid rgb(255, 102, 0);
+    /* border: 3px solid rgb(255, 102, 0); */
     height: 100vh;
     height: 100dvh;
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 body {
     background-color: var(--color-bg-1);

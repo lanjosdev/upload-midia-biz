@@ -1,6 +1,6 @@
 {
-  "name": "MidiaBiz",
-  "short_name": "WebApp MidiaBiz",
+  "name": "WebApp MidiaBizsys",
+  "short_name": "App MidiaBiz",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#000000",

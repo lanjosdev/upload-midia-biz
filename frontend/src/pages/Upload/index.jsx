@@ -1,5 +1,9 @@
 // Hooks / Libs:
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
+
+// CONTANTES:
+import { CONSTANTS_CONFIG } from "../../config/appConfig";
 
 // API:
 import UploadService from "../../api/uploadService";
@@ -21,17 +25,19 @@ import { formatDecimal } from "../../utils/formatNumbers";
 
 // Estilo:
 import './style.css';
+import { replace } from "react-router-dom";
 
 
 
 export default function Upload() {
     // Constantes do componente:
-    const durationLimits = {
+    const configsApp = JSON.parse(Cookies.get(CONSTANTS_CONFIG.COOKIE_CONFIG_NAME) || null);
+
+    const durationLimits = configsApp?.VIDEO.duration_limits || {
         min: 10,
         max: 13
     };
-    const megabyteChunkNominal = 3;
-    const megabyteNominal = 40;
+    const megabyteNominal = configsApp?.VIDEO.max_mb_video || 50;
     const megabyteLimit = megabyteNominal * 1024 * 1024;
     const infosNull = {
         name_file: null,
@@ -39,6 +45,8 @@ export default function Upload() {
         duration: null,
         size: null
     }; // { name_file: string | null, dimensions: {width: number, height: number}, duration: number, size: number }
+    const megabyteChunkNominal = configsApp?.UPLOAD.max_mb_chunk || 3;
+
 
     // Estados do componente:
     const [loadingFilePreview, setLoadingFilePreview] = useState(false);
@@ -162,7 +170,7 @@ export default function Upload() {
             video.src = fileUrl;
         }
         catch(error) {
-            console.error(error);
+            console.error('DEU ERRO', error);
             setValidationErrors(['Houve um erro inesperado.']);
             
             resetCurrentData();
@@ -392,7 +400,7 @@ export default function Upload() {
                     <div className="container_infos">
                         <div className="infos">
                             {infosVideo?.name_file && (
-                                <p><span>Arquivo:</span> {infosVideo.name_file}</p>
+                                <p className="filename"><span>Arquivo:</span> {infosVideo.name_file}</p>
                             )}
                             {infosVideo?.dimensions && (
                                 <p><span>Dimensões:</span> {infosVideo.dimensions.width}x{infosVideo.dimensions.height}</p>
@@ -460,7 +468,7 @@ export default function Upload() {
                             )}
                         </button> */}
 
-                        <button className="btn primary"
+                        <button className={`btn ${uploadSuccess ? 'success' : 'primary'}`}
                         onClick={handleUploadVideoChunks}
                         disabled={!selectedFile || validationErrors.length > 0 || loadingFilePreview || loadingSubmit || uploadSuccess}
                         >

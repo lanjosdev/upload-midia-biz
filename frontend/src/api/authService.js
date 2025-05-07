@@ -1,9 +1,9 @@
 // Libs:
 import api from './config/axiosConfig';
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 
 // CONSTANTES:
-import { APP_CONSTANTS } from './config/constants';
+// import { APP_CONSTANTS } from './config/constants';
 
 
 const Login = async (email, password) => {
