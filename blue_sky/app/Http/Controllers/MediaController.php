@@ -414,7 +414,7 @@ class MediaController extends Controller
             fclose($out);
             rmdir($tmpDir); // remove o diretório temporário de chunks
 
-            $tempFolder = 'temp';
+            $tempFolder = public_path('temp');
 
             if (!File::exists($tempFolder)) {
                 File::makeDirectory($tempFolder, 0775, true);
