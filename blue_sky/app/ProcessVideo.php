@@ -144,59 +144,80 @@ class ProcessVideo
 
                 if ($infoUsersLocationUf === 'CE') {
                     $molduraPath = public_path('fortaleza1080.mov');
-                    $moldura320Path = public_path('fortaleza448.mov');
+                    $moldura320Path = public_path('fortaleza448_2.mov');
                 } elseif ($infoUsersLocationUf === 'PE') {
                     $molduraPath = public_path('recife1080.mov');
-                    $moldura320Path = public_path('recife448.mov');
+                    $moldura320Path = public_path('recife448_2.mov');
                 } else {
                     $molduraPath = public_path('rj1080.mov');
-                    $moldura320Path = public_path('rj448.mov');
+                    $moldura320Path = public_path('rj448_2.mov');
                 }
 
                 $withFramePath = $destinationPathOriginal . '/temp_framed_' . $fileName;
 
                 $cmdFrame = "$ffmpegPath -y -i \"$originalPath\" -t 10 -r 30 -an -c:v libx264 -maxrate 10000k -bufsize 20000k -preset fast \"$withFramePath\"";
                 shell_exec($cmdFrame);
- 
+
                 // gerar resoluções (1080p e 320p)
                 ////////////////////////// $cmd1080 = "$ffmpegPath -y -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v][1:v] overlay=0:0,scale=$resolutionScale1080\" \"$destinationPath1080/$fileName\"";
                 // $cmd320 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$moldura320Path\" -filter_complex \"[0:v]scale=320:480,crop=320:448:0:0[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath320/$fileName\"";
                 // $cmd1080 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v]scale=1080:1920:[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath1080/$fileName\"";
 
-                $cmd1080 = "$ffmpegPath -y " .
-                    "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
-                    "-i \"$molduraPath\" " .                 // input 1: moldura com alpha
-                    "-filter_complex \"" .
-                    "[0:v]scale=1080:1920[bg]; " .
-                    "[1:v]format=rgba[moldura_alpha]; " .
+                $exit = "[1:v]format=rgba[moldura_alpha]; " .
                     "[bg][moldura_alpha]overlay=0:0[out]\" " .
                     "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
-                    // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
-                    // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
-                    // "-maxrate 10000k " .
-                    // "-bufsize 20000k " .
-                    "-preset fast " .
+                    "-preset fast ";
+
+                // $cmd1080 = "$ffmpegPath -y " .
+                //     "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
+                //     "-i \"$molduraPath\" " .                 // input 1: moldura com alpha
+                //     "-filter_complex \"" .
+                //     "[0:v]scale=1080:1920[bg]; " .
+                //     "[1:v]format=rgba[moldura_alpha]; " .
+                //     "[bg][moldura_alpha]overlay=0:0[out]\" " .
+                //     "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
+                //     // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
+                //     // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
+                //     // "-maxrate 10000k " .
+                //     // "-bufsize 20000k " .
+                //     "-preset fast " .
+                //     // "-preset veryslow " .
+                //     "\"$destinationPath1080/$fileName\"";
+
+                // $cmd320 = "$ffmpegPath -y " .
+                //     "-i \"$withFramePath\" " .
+                //     "-i \"$moldura320Path\" " .
+                //     "-filter_complex \"" .
+                //     "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
+                //     "[1:v]format=rgba[moldura_alpha]; " .
+                //     "[bg][moldura_alpha]overlay=0:0[out]\" " .
+                //     "-map \"[out]\" -t 10 -r 30 -an " .
+                //     "-c:v libx264 " .
+                //     // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
+                //     // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
+                //     // "-maxrate 10000k " .
+                //     // "-bufsize 20000k " .
+                //     "-preset fast " .
+                //     // "-preset veryslow " .
+                //     "\"$destinationPath320/$fileName\"";
+
+                $cmd1080 = "$ffmpegPath -y " .
+                    "-i \"$withFramePath\" " .
+                    "-i \"$molduraPath\" " .
+                    "-filter_complex \"" .
+                    "[0:v]scale=1080:1920[bg]; " .
+                    "$exit " .
                     // "-preset veryslow " .
                     "\"$destinationPath1080/$fileName\"";
-
 
                 $cmd320 = "$ffmpegPath -y " .
                     "-i \"$withFramePath\" " .
                     "-i \"$moldura320Path\" " .
                     "-filter_complex \"" .
                     "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
-                    "[1:v]format=rgba[moldura_alpha]; " .
-                    "[bg][moldura_alpha]overlay=0:0[out]\" " .
-                    "-map \"[out]\" -t 10 -r 30 -an " .
-                    "-c:v libx264 " .
-                    // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
-                    // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
-                    // "-maxrate 10000k " .
-                    // "-bufsize 20000k " .
-                    "-preset fast " .
+                    "$exit " .
                     // "-preset veryslow " .
                     "\"$destinationPath320/$fileName\"";
-
 
                 shell_exec($cmd1080);
                 shell_exec($cmd320);
