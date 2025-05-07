@@ -166,7 +166,7 @@ class ProcessVideo
                 $cmd1080 = "$ffmpegPath -y " .
                     "-i \"$withFramePath\" " .               // vídeo de fundo (principal)
                     "-i \"$molduraPath\" " .                 // vídeo com fundo transparente (com alpha)
-                    "-filter_complex \"[1:v]format=rgba[moldura_alpha]; " .
+                    "-filter_complex \"[1:v]format=rgb[moldura_alpha]; " .
                     "[0:v][moldura_alpha]overlay=0:0:format=auto,scale=1080:1920\" " . // overlay com alpha
                     "-t 10 -r 30 -an -c:v libx264 " .
                     "-b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
@@ -178,7 +178,7 @@ class ProcessVideo
                     "-i \"$moldura320Path\" " .              
                     "-filter_complex \"" .
                     "[0:v]scale=320:480,crop=320:448:32:0[bg]; " .
-                    "[1:v]format=rgba[moldura_alpha]; " .
+                    "[1:v]format=rgb[moldura_alpha]; " .
                     "[bg][moldura_alpha]overlay=0:0:format=auto[out]\" " .
                     "-map \"[out]\" -t 10 -r 30 -an " .
                     "-c:v libx264 " .
