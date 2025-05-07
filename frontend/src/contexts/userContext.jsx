@@ -43,8 +43,8 @@ export function UserProvider({ children }) {
                 const token = response.data;
                 Cookies.set(APP_CONSTANTS.AUTH_TOKEN_COOKIE_NAME, token, { 
                     secure: true,
-                    sameSite: 'Strict',
-                    expires: 1 // 1 dia
+                    sameSite: 'Strict'
+                    // expires: 1 // 1 dia
                 });
                 toast.success('Login realizado com sucesso!');
                 

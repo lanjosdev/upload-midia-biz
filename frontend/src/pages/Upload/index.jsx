@@ -30,9 +30,9 @@ export default function Upload() {
         min: 10,
         max: 13
     };
-    const megabyteNominal = 40;
     const megabyteChunkNominal = 3;
-    const megabyteLimit = megabyteNominal * 1048576;
+    const megabyteNominal = 40;
+    const megabyteLimit = megabyteNominal * 1024 * 1024;
     const infosNull = {
         name_file: null,
         dimensions: null,
@@ -43,9 +43,7 @@ export default function Upload() {
     // Estados do componente:
     const [loadingFilePreview, setLoadingFilePreview] = useState(false);
     const [loadingSubmit, setLoadingSubmit] = useState(false);
-    // const [hasError, setHasError] = useState(false);
     const [validationErrors, setValidationErrors] = useState([]);
-    // const [validationMessage, setValidationMessage] = useState([]); // [{type: "success" | "error" | null, message: string}]
 
     // Logica UI:
     const [selectedFile, setSelectedFile] = useState(null);
@@ -54,12 +52,7 @@ export default function Upload() {
 
     const [progress, setProgress] = useState(0); 
     const [uploadSuccess, setUploadSuccess] = useState(false); 
-    const [uploadSuccessNode, setUploadSuccessNode] = useState(false); 
-    const [uploadSuccessChunk, setUploadSuccessChunk] = useState(false); 
 
-    const [timeFileFull, setTimeFileFull] = useState(0); 
-    const [timeFileNode, setTimeFileNode] = useState(0); 
-    const [timeChunk, setTimeChunk] = useState(0); 
 
 
 
@@ -76,16 +69,15 @@ export default function Upload() {
 
 
     
-    function resetCurrentData(exceptFile=false) {
+    function resetCurrentData() {
         if(previewUrl) {
             URL.revokeObjectURL(previewUrl);
         }
         setPreviewUrl(null);
         setInfosVideo(infosNull);
-        if(!exceptFile) {
-            setSelectedFile(null);
-        }
-        setProgress(0);
+        setSelectedFile(null);
+
+        setUploadSuccess(false);
     }
 
     function handleChangeFile(e) {
@@ -117,9 +109,7 @@ export default function Upload() {
         // GERA A URL PARA PRÉ-VISUALIZAÇÂO E SALVA VIDEO E SUAS INFOS:
         setValidationErrors([]);
         setLoadingFilePreview(true);
-        setUploadSuccess(false);
-        setUploadSuccessNode(false);
-        setUploadSuccessChunk(false);
+        resetCurrentData();
 
         try {
             const fileUrl = URL.createObjectURL(file);
@@ -182,149 +172,108 @@ export default function Upload() {
 
 
     // SUBMIT API:
-    async function handleUploadVideo() {
-        setLoadingSubmit(true);
-        const startTime = performance.now();
-        setProgress(0)
-
-        // VALIDAÇÕES:
-        // console.log('Original', selectedFile)
-        if(!selectedFile) {
-            toast.warn('Não há arquivo para fazer upload')
-            setLoadingSubmit(false);
-            resetCurrentData();
-            return;
-        }
-
-        // Request:
-        // resetCurrentData(true);
-        try {
-            const response = await UploadService.UploadVideo(selectedFile, (progress) => {
-                setProgress(progress);
-            });
-            console.log(response);  
-
-            if(response.success) {
-                toast.success('Vídeo enviado com sucesso.');
-                setUploadSuccess(true);
-            }
-            else if(response.success == false) {
-                console.warn(response.message);
-                toast.warn(response.message);
-            }
-            else {
-                toast.error('Erro inesperado.');
-            }
-        }
-        catch(error) {
-            console.error('DETALHES DO ERRO: ', error);
-            // toast.error('Houve algum erro.');
-
-            setValidationErrors(['Falha no upload.']);
-            // resetCurrentData();
-        }         
-
-
-        // console.log('FIIIIIM')
-        const endTime = performance.now();
-        const seconds = ((endTime - startTime) / 1000).toFixed(2);
-        setTimeFileFull(seconds);
-        setLoadingSubmit(false);
-        // resetCurrentData();
-    }
-
-    async function handleUploadVideoNode() {
-        setLoadingSubmit(true);
-        const startTime = performance.now();
-        setProgress(0)
-
-        // VALIDAÇÕES:
-        // console.log('Original', selectedFile)
-        if(!selectedFile) {
-            toast.warn('Não há arquivo para fazer upload')
-            setLoadingSubmit(false);
-            resetCurrentData();
-            return;
-        }
-
-        // Request:
-        // resetCurrentData(true);
-        try {
-            const response = await UploadService.UploadVideoNode(selectedFile, (progress) => {
-                setProgress(progress);
-            });
-            console.log(response);  
-
-            if(response.url_video) {
-                toast.success('Vídeo enviado com sucesso.');
-                setUploadSuccessNode(true);
-            }
-            else {
-                toast.error('Erro inesperado.');
-            }
-        }
-        catch(error) {
-            console.error('DETALHES DO ERRO: ', error);
-            // toast.error('Houve algum erro.');
-
-            setValidationErrors(['Falha no upload.']);
-            // resetCurrentData();
-        }         
-
-
-        // console.log('FIIIIIM')
-        const endTime = performance.now();
-        const seconds = ((endTime - startTime) / 1000).toFixed(2);
-        setTimeFileNode(seconds);
-        setLoadingSubmit(false);
-        // resetCurrentData();
-    }
-
-
-    // function uploadVideoInChunks(file, chunkSize = 1 * 1024 * 1024) {
-    //     const totalChunks = Math.ceil(file.size / chunkSize);
-    //     let currentChunk = 0;
+    // async function handleUploadVideo() {
+    //     setLoadingSubmit(true);
     //     const startTime = performance.now();
-    
-    //     function sendChunk() {
-    //         const start = currentChunk * chunkSize;
-    //         const end = Math.min(start + chunkSize, file.size);
-    //         const chunk = file.slice(start, end);
-    
-    //         const formData = new FormData();
-    //         formData.append('chunk', chunk);
-    //         formData.append('chunkNumber', currentChunk);
-    //         formData.append('totalChunks', totalChunks);
-    //         formData.append('fileName', file.name);
-    
-    //         fetch('http://upload-chunks.test/upload-chunk', {
-    //             method: 'POST',
-    //             body: formData
-    //         })
-    //         .then(res => res.json())
-    //         .then(() => {
-    //             currentChunk++;
-    //             const percent = (currentChunk / totalChunks) * 100;
-    //             chunkProgress.value = percent;
-    
-    //             if (currentChunk < totalChunks) {
-    //                 sendChunk();
-    //             } else {
-    //                 const endTime = performance.now();
-    //                 const seconds = ((endTime - startTime) / 1000).toFixed(2);
-    //                 chunkTime.innerText = Tempo: ${seconds}s;
-    //             }
-    //         })
-    //         .catch(console.error);
+    //     setProgress(0)
+
+    //     // VALIDAÇÕES:
+    //     // console.log('Original', selectedFile)
+    //     if(!selectedFile) {
+    //         toast.warn('Não há arquivo para fazer upload')
+    //         setLoadingSubmit(false);
+    //         resetCurrentData();
+    //         return;
     //     }
-    
-    //     sendChunk();
+
+    //     // Request:
+    //     // resetCurrentData(true);
+    //     try {
+    //         const response = await UploadService.UploadVideo(selectedFile, (progress) => {
+    //             setProgress(progress);
+    //         });
+    //         console.log(response);  
+
+    //         if(response.success) {
+    //             toast.success('Vídeo enviado com sucesso.');
+    //             setUploadSuccess(true);
+    //         }
+    //         else if(response.success == false) {
+    //             console.warn(response.message);
+    //             toast.warn(response.message);
+    //         }
+    //         else {
+    //             toast.error('Erro inesperado.');
+    //         }
+    //     }
+    //     catch(error) {
+    //         console.error('DETALHES DO ERRO: ', error);
+    //         // toast.error('Houve algum erro.');
+
+    //         setValidationErrors(['Falha no upload.']);
+    //         // resetCurrentData();
+    //     }         
+
+
+    //     // console.log('FIIIIIM')
+    //     const endTime = performance.now();
+    //     const seconds = ((endTime - startTime) / 1000).toFixed(2);
+    //     setTimeFileFull(seconds);
+    //     setLoadingSubmit(false);
+    //     // resetCurrentData();
+    // }
+
+    // async function handleUploadVideoNode() {
+    //     setLoadingSubmit(true);
+    //     const startTime = performance.now();
+    //     setProgress(0)
+
+    //     // VALIDAÇÕES:
+    //     // console.log('Original', selectedFile)
+    //     if(!selectedFile) {
+    //         toast.warn('Não há arquivo para fazer upload')
+    //         setLoadingSubmit(false);
+    //         resetCurrentData();
+    //         return;
+    //     }
+
+    //     // Request:
+    //     // resetCurrentData(true);
+    //     try {
+    //         const response = await UploadService.UploadVideoNode(selectedFile, (progress) => {
+    //             setProgress(progress);
+    //         });
+    //         console.log(response);  
+
+    //         if(response.url_video) {
+    //             toast.success('Vídeo enviado com sucesso.');
+    //             setUploadSuccessNode(true);
+    //         }
+    //         else {
+    //             toast.error('Erro inesperado.');
+    //         }
+    //     }
+    //     catch(error) {
+    //         console.error('DETALHES DO ERRO: ', error);
+    //         // toast.error('Houve algum erro.');
+
+    //         setValidationErrors(['Falha no upload.']);
+    //         // resetCurrentData();
+    //     }         
+
+
+    //     // console.log('FIIIIIM')
+    //     const endTime = performance.now();
+    //     const seconds = ((endTime - startTime) / 1000).toFixed(2);
+    //     setTimeFileNode(seconds);
+    //     setLoadingSubmit(false);
+    //     // resetCurrentData();
     // }
 
     async function handleUploadVideoChunks() {
         setLoadingSubmit(true);
-        const startTime = performance.now();
-        setProgress(0)
+        // const startTime = performance.now();
+        setProgress(0);
 
 
         // VALIDAÇÕES:
@@ -337,10 +286,9 @@ export default function Upload() {
         }
 
         // REQUEST:
-        // resetCurrentData(true);
         try {
             // Tratamento de chunks
-            const CHUNK_SIZE = megabyteChunkNominal * 1024 * 1024; // 5MB por chunk
+            const CHUNK_SIZE = megabyteChunkNominal * 1024 * 1024; // tamanho por chunk
             const totalChunks = Math.ceil(selectedFile.size / CHUNK_SIZE);      
             const fileId = `${Date.now()}-${selectedFile.name}`;
             // console.log(fileId, CHUNK_SIZE, totalChunks)
@@ -355,9 +303,11 @@ export default function Upload() {
                 // Envie o chunk para API
                 // console.log('Envio de chunk index:', chunkIndex)
                 const result = await UploadService.UploadVideoChunk(chunk, chunkIndex, fileId);
-                console.log(`Chunck(${chunkIndex+1} de ${totalChunks}) enviado:`, result)
-        
-                setProgress(Math.round(((chunkIndex) / totalChunks) * 100));
+                // console.log(`Chunck(${chunkIndex+1} de ${totalChunks}) enviado:`, result)
+                
+                if(result.success) {
+                    setProgress(Math.round(((chunkIndex) / totalChunks) * 100));
+                }
                 // console.warn('Chunk index OK:', chunkIndex)
             }
 
@@ -369,7 +319,7 @@ export default function Upload() {
             if(response.success) {
                 setProgress(100);
                 toast.success('Vídeo enviado com sucesso.');
-                setUploadSuccessChunk(true);
+                setUploadSuccess(true);
             }
             else if(response.success == false) {
                 console.warn(response.message);
@@ -386,9 +336,9 @@ export default function Upload() {
 
         
         // console.log('FIMMMMMMMM')
-        const endTime = performance.now();
-        const seconds = ((endTime - startTime) / 1000).toFixed(2);
-        setTimeChunk(seconds);
+        // const endTime = performance.now();
+        // const seconds = ((endTime - startTime) / 1000).toFixed(2);
+        // setTimeChunk(seconds);
         setLoadingSubmit(false);
         // resetCurrentData();
     }
@@ -497,7 +447,7 @@ export default function Upload() {
                             )}
                         </button> */}
                         
-                        <button className="btn primary"
+                        {/* <button className="btn primary"
                         onClick={handleUploadVideoNode}
                         disabled={!selectedFile || validationErrors.length > 0 || loadingFilePreview || loadingSubmit || uploadSuccessNode}
                         >
@@ -508,18 +458,18 @@ export default function Upload() {
                             ) : (
                                 <span>Upload vídeo inteiro (Render)</span>
                             )}
-                        </button>
+                        </button> */}
 
                         <button className="btn primary"
                         onClick={handleUploadVideoChunks}
-                        disabled={!selectedFile || validationErrors.length > 0 || loadingFilePreview || loadingSubmit || uploadSuccessChunk}
+                        disabled={!selectedFile || validationErrors.length > 0 || loadingFilePreview || loadingSubmit || uploadSuccess}
                         >
                             {loadingSubmit ? 
                                 <span>Enviando...</span>
-                            : uploadSuccessChunk ? (
-                                <span><i className="bi bi-check-circle-fill"></i> Enviado via chunks (Tempo: {timeChunk}s)</span>
+                            : uploadSuccess ? (
+                                <span><i className="bi bi-check-circle-fill"></i> Upload feito</span>
                             ) : (
-                                <span>Upload vídeo via chunks ({megabyteChunkNominal}MB cada)</span>
+                                <span>Fazer upload</span>
                             )}
                         </button>
                     </div>
