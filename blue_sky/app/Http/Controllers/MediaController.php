@@ -390,7 +390,8 @@ class MediaController extends Controller
             $totalChunks = (int) $request->input('totalChunks');
 
             $tmpDir = storage_path("app/chunks/$filename");
-            $finalFolder = storage_path("app/public/videos");
+            // $finalFolder = storage_path("app/public/videos");
+            $finalFolder = 'temp';
             $finalPath = "$finalFolder/$filename";
 
             // Cria a pasta de destino se não existir
@@ -414,15 +415,16 @@ class MediaController extends Controller
             fclose($out);
             rmdir($tmpDir); // remove o diretório temporário de chunks
 
-            $tempFolder = 'temp';
+            // $tempFolder = 'temp';
 
-            if (!File::exists($tempFolder)) {
-                File::makeDirectory($tempFolder, 0775, true);
+            if (!File::exists($finalFolder)) {
+                File::makeDirectory($finalFolder, 0775, true);
             }
 
             // move o vídeo finalizado para a pasta temp
-            $fullPath = $tempFolder . DIRECTORY_SEPARATOR . $filename;
-            File::move($finalPath, $fullPath);
+            $fullPath = $finalFolder . DIRECTORY_SEPARATOR . $filename;
+            // File::move($finalPath, $fullPath);
+            File::move($finalPath, $out);
 
             // Pega a extensão do arquivo
             $extension = pathinfo($filename, PATHINFO_EXTENSION);
