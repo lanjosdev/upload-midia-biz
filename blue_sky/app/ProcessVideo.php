@@ -168,7 +168,7 @@ class ProcessVideo
                     "-i \"$molduraPath\" " .                 // input 1: moldura com alpha
                     "-filter_complex \"" .
                     "[0:v]scale=1080:1920[bg]; " .      
-                    "[1:v]format=auto[moldura_alpha]; " .
+                    "[1:v]format=rgba[moldura_alpha]; " .
                     "[bg][moldura_alpha]overlay=0:0:format=auto[out]\" " . 
                     "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
                     "-b:v 9000k -minrate 9000k -maxrate 10000k " .
@@ -182,7 +182,7 @@ class ProcessVideo
                     "-i \"$moldura320Path\" " .
                     "-filter_complex \"" .
                     "[0:v]scale=320:480,crop=320:448:32:0[bg]; " .
-                    "[1:v]format=auto[moldura_alpha]; " .
+                    "[1:v]format=rgba[moldura_alpha]; " .
                     "[bg][moldura_alpha]overlay=0:0:format=auto[out]\" " .
                     "-map \"[out]\" -t 10 -r 30 -an " .
                     "-c:v libx264 " .
