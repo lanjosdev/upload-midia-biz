@@ -155,9 +155,9 @@ class ProcessVideo
 
                 $withFramePath = $destinationPathOriginal . '/temp_framed_' . $fileName;
 
-                $cmdFrame = "$ffmpegPath -y -i \"$originalPath\" -t 10 -r 30 -an -c:v libx264 -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$withFramePath\"";
+                $cmdFrame = "$ffmpegPath -y -i \"$originalPath\" -t 10 -r 30 -an -c:v libx264 -maxrate 10000k -bufsize 20000k -preset fast \"$withFramePath\"";
                 shell_exec($cmdFrame);
-
+ 
                 // gerar resoluções (1080p e 320p)
                 ////////////////////////// $cmd1080 = "$ffmpegPath -y -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v][1:v] overlay=0:0,scale=$resolutionScale1080\" \"$destinationPath1080/$fileName\"";
                 // $cmd320 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$moldura320Path\" -filter_complex \"[0:v]scale=320:480,crop=320:448:0:0[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath320/$fileName\"";
@@ -167,13 +167,16 @@ class ProcessVideo
                     "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
                     "-i \"$molduraPath\" " .                 // input 1: moldura com alpha
                     "-filter_complex \"" .
-                    "[0:v]scale=1080:1920[bg]; " .      
+                    "[0:v]scale=1080:1920[bg]; " .
                     "[1:v]format=rgba[moldura_alpha]; " .
-                    "[bg][moldura_alpha]overlay=0:0:format=auto[out]\" " . 
+                    "[bg][moldura_alpha]overlay=0:0[out]\" " .
                     "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
-                    "-b:v 9000k -minrate 9000k -maxrate 10000k " .
-                    "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
+                    // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
+                    // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
+                    // "-maxrate 10000k " .
+                    // "-bufsize 20000k " .
                     "-preset fast " .
+                    // "-preset veryslow " .
                     "\"$destinationPath1080/$fileName\"";
 
 
@@ -181,14 +184,17 @@ class ProcessVideo
                     "-i \"$withFramePath\" " .
                     "-i \"$moldura320Path\" " .
                     "-filter_complex \"" .
-                    "[0:v]scale=320:480,crop=320:448:32:0[bg]; " .
+                    "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
                     "[1:v]format=rgba[moldura_alpha]; " .
-                    "[bg][moldura_alpha]overlay=0:0:format=auto[out]\" " .
+                    "[bg][moldura_alpha]overlay=0:0[out]\" " .
                     "-map \"[out]\" -t 10 -r 30 -an " .
                     "-c:v libx264 " .
-                    "-b:v 9000k -minrate 9000k -maxrate 10000k " .
-                    "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
+                    // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
+                    // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
+                    // "-maxrate 10000k " .
+                    // "-bufsize 20000k " .
                     "-preset fast " .
+                    // "-preset veryslow " .
                     "\"$destinationPath320/$fileName\"";
 
 
