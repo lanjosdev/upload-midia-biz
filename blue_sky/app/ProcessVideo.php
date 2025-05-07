@@ -118,7 +118,7 @@ class ProcessVideo
 
                 $originalPath = $destinationPathOriginal . DIRECTORY_SEPARATOR . $fileName;
                 // $video->move($destinationPathOriginal, $fileName);
-                $video = public_path($videoPath);
+                $video = $videoPath;
 
                 if (!File::exists($video)) {
                     return response()->json([
