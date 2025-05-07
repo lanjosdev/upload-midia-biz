@@ -414,26 +414,17 @@ class MediaController extends Controller
             fclose($out);
             rmdir($tmpDir); // remove o diretório temporário de chunks
 
-            // $tempFolder = 'temp';
+            $tempFolder = 'temp';
 
-            // if (!File::exists($tempFolder)) {
-            //     File::makeDirectory($tempFolder, 0775, true);
-            // }
-
-            // // move o vídeo finalizado para a pasta temp
-            // $fullPath = $tempFolder . DIRECTORY_SEPARATOR . $out;
-            // File::move($finalPath, $fullPath);
-
-            // // Pega a extensão do arquivo
-            // $extension = pathinfo($filename, PATHINFO_EXTENSION);
-
-            $folderTemp = 'temp';
-
-            if (!File::exists($folderTemp)) {
-                File::makeDirectory(($folderTemp), 0775, true);
+            if (!File::exists($tempFolder)) {
+                File::makeDirectory($tempFolder, 0775, true);
             }
 
-            $fullPath = $folderTemp . DIRECTORY_SEPARATOR . $filename;
+            // move o vídeo finalizado para a pasta temp
+            $fullPath = $tempFolder . DIRECTORY_SEPARATOR . $filename;
+            File::move($finalPath, $fullPath);
+
+            // Pega a extensão do arquivo
             $extension = pathinfo($filename, PATHINFO_EXTENSION);
 
             // Envia para a fila de processamento
