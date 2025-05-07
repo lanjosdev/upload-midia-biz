@@ -438,7 +438,7 @@ class MediaController extends Controller
 
             // Envia para a fila de processamento
             if (file_exists($fullPath)) {
-                ProcessVideoJob::dispatch($fullPath, $out, $extension, $regionId);
+                ProcessVideoJob::dispatch($fullPath, $filename, $extension, $regionId);
 
                 return response()->json([
                     'success' => true,
