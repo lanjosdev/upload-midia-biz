@@ -433,7 +433,7 @@ class MediaController extends Controller
                 File::makeDirectory(($folderTemp), 0775, true);
             }
 
-            $fullPath = $folderTemp . DIRECTORY_SEPARATOR . $out;
+            $fullPath = $folderTemp . DIRECTORY_SEPARATOR . $filename;
             $extension = pathinfo($filename, PATHINFO_EXTENSION);
 
             // Envia para a fila de processamento
