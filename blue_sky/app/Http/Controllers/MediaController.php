@@ -97,11 +97,10 @@ class MediaController extends Controller
                 'data' => $data,
                 'count_data' => count($data)
             ]);
-            
         } catch (QueryException $qe) {
 
             Log::error('Error DB: ' . $qe->getMessage());
-            
+
 
             return response()->json([
                 'success' => false,
@@ -251,8 +250,8 @@ class MediaController extends Controller
                     "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
                     "-i \"$moldura320Path\" " .              // input 1: moldura com alpha
                     "-filter_complex \"" .
-                    "[0:v]scale=320:480,crop=320:448:0:32[bg]; " .               
-                    "[1:v]format=yuva420p[moldura_alpha]; " .                  
+                    "[0:v]scale=320:480,crop=320:448:0:32[bg]; " .
+                    "[1:v]format=yuva420p[moldura_alpha]; " .
                     "[bg][moldura_alpha]overlay=0:0[out]" .
                     "\" -map \"[out]\" -t 10 -r 30 -an -c:v libx264 -preset ultrafast " .
                     "\"$destinationPath320/$fileName\"";
@@ -389,8 +388,45 @@ class MediaController extends Controller
             $filename = $request->input('filename');
             $totalChunks = (int) $request->input('totalChunks');
 
+            // $tmpDir = storage_path("app/chunks/$filename");
+            // $finalFolder = storage_path("app/public/videos");
+            // $finalPath = "$finalFolder/$filename";
+
+            // // Cria a pasta de destino se não existir
+            // if (!file_exists($finalFolder)) {
+            //     mkdir($finalFolder, 0777, true);
+            // }
+
+            // // Junta os chunks
+            // $out = fopen($finalPath, 'ab');
+
+            // for ($i = 0; $i < $totalChunks; $i++) {
+            //     $chunkPath = "$tmpDir/$i";
+            //     if (file_exists($chunkPath)) {
+            //         $in = fopen($chunkPath, 'rb');
+            //         stream_copy_to_stream($in, $out);
+            //         fclose($in);
+            //         unlink($chunkPath); // remove o chunk após usar
+            //     }
+            // }
+
+            // fclose($out);
+            // rmdir($tmpDir); // remove o diretório temporário de chunks
+
+            // $tempFolder = 'temp';
+
+            // if (!File::exists($tempFolder)) {
+            //     File::makeDirectory($tempFolder, 0775, true);
+            // }
+
+            // // move o vídeo finalizado para a pasta temp
+            // $fullPath = public_path($tempFolder . DIRECTORY_SEPARATOR . $filename);
+            // File::move($finalPath, $fullPath);
+
             $tmpDir = storage_path("app/chunks/$filename");
-            $finalFolder = storage_path("app/public/videos");
+
+            // Novo caminho final: public/temp
+            $finalFolder = public_path("temp");
             $finalPath = "$finalFolder/$filename";
 
             // Cria a pasta de destino se não existir
@@ -414,22 +450,13 @@ class MediaController extends Controller
             fclose($out);
             rmdir($tmpDir); // remove o diretório temporário de chunks
 
-            $tempFolder = 'temp';
-
-            if (!File::exists($tempFolder)) {
-                File::makeDirectory($tempFolder, 0775, true);
-            }
-
-            // move o vídeo finalizado para a pasta temp
-            $fullPath = public_path($tempFolder . DIRECTORY_SEPARATOR . $filename);
-            File::move($finalPath, $fullPath);
 
             // Pega a extensão do arquivo
             $extension = pathinfo($filename, PATHINFO_EXTENSION);
 
             // Envia para a fila de processamento
-            if (file_exists($fullPath)) {
-                ProcessVideoJob::dispatch($fullPath, $filename, $extension, $regionId);
+            if (file_exists($finalPath)) {
+                ProcessVideoJob::dispatch($finalPath, $filename, $extension, $regionId);
 
                 return response()->json([
                     'success' => true,
