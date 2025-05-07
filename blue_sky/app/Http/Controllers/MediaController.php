@@ -390,8 +390,7 @@ class MediaController extends Controller
             $totalChunks = (int) $request->input('totalChunks');
 
             $tmpDir = storage_path("app/chunks/$filename");
-            // $finalFolder = storage_path("app/public/videos");
-            $finalFolder = 'temp';
+            $finalFolder = storage_path("app/public/videos");
             $finalPath = "$finalFolder/$filename";
 
             // Cria a pasta de destino se não existir
@@ -417,21 +416,29 @@ class MediaController extends Controller
 
             // $tempFolder = 'temp';
 
-            if (!File::exists($finalFolder)) {
-                File::makeDirectory($finalFolder, 0775, true);
+            // if (!File::exists($tempFolder)) {
+            //     File::makeDirectory($tempFolder, 0775, true);
+            // }
+
+            // // move o vídeo finalizado para a pasta temp
+            // $fullPath = $tempFolder . DIRECTORY_SEPARATOR . $out;
+            // File::move($finalPath, $fullPath);
+
+            // // Pega a extensão do arquivo
+            // $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+            $folderTemp = 'temp';
+
+            if (!File::exists($folderTemp)) {
+                File::makeDirectory(($folderTemp), 0775, true);
             }
 
-            // move o vídeo finalizado para a pasta temp
-            $fullPath = $finalFolder . DIRECTORY_SEPARATOR . $filename;
-            // File::move($finalPath, $fullPath);
-            File::move($finalPath, $out);
-
-            // Pega a extensão do arquivo
+            $fullPath = $folderTemp . DIRECTORY_SEPARATOR . $out;
             $extension = pathinfo($filename, PATHINFO_EXTENSION);
 
             // Envia para a fila de processamento
             if (file_exists($fullPath)) {
-                ProcessVideoJob::dispatch($fullPath, $filename, $extension, $regionId);
+                ProcessVideoJob::dispatch($fullPath, $out, $extension, $regionId);
 
                 return response()->json([
                     'success' => true,
