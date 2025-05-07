@@ -421,7 +421,7 @@ class MediaController extends Controller
             }
 
             // move o vídeo finalizado para a pasta temp
-            $fullPath = $tempFolder . DIRECTORY_SEPARATOR . $filename;
+            $fullPath = public_path($tempFolder . DIRECTORY_SEPARATOR . $filename);
             File::move($finalPath, $fullPath);
 
             // Pega a extensão do arquivo

@@ -142,17 +142,6 @@ class ProcessVideo
 
                 $molduraPath = null;
 
-                // if ($infoUsersLocationUf === 'CE') {
-                //     $molduraPath = public_path('Recife.png');
-                //     $moldura320Path = public_path('pe.png');
-                // } elseif ($infoUsersLocationUf === 'PE') {
-                //     $molduraPath = public_path('Fortal.png');
-                //     $moldura320Path = public_path('ce.png');
-                // } else {
-                //     $molduraPath = public_path('RJ.png');
-                //     $moldura320Path = public_path('rjmin.png');
-                // }
-
                 if ($infoUsersLocationUf === 'CE') {
                     $molduraPath = public_path('fortaleza1080.mov');
                     $moldura320Path = public_path('fortaleza448.mov');
