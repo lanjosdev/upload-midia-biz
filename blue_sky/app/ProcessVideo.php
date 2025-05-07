@@ -169,11 +169,11 @@ class ProcessVideo
                     "-filter_complex \"" .
                     "[0:v]scale=1080:1920[bg]; " .      
                     "[1:v]format=auto[moldura_alpha]; " .
-                    "[bg][moldura_alpha]overlay=0:0[out]\" " . 
+                    "[bg][moldura_alpha]overlay=0:0:format=auto[out]\" " . 
                     "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
                     "-b:v 9000k -minrate 9000k -maxrate 10000k " .
                     "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
-                    "-preset ultrafast " .
+                    "-preset fast " .
                     "\"$destinationPath1080/$fileName\"";
 
 
@@ -188,7 +188,7 @@ class ProcessVideo
                     "-c:v libx264 " .
                     "-b:v 9000k -minrate 9000k -maxrate 10000k " .
                     "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
-                    "-preset ultrafast " .
+                    "-preset fast " .
                     "\"$destinationPath320/$fileName\"";
 
 
