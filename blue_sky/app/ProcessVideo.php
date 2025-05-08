@@ -129,7 +129,7 @@ class ProcessVideo
                     ]);
                 }
 
-                File::move($video, $destinationPathOriginal . '/' . $fileName);
+                File::move($video, $destinationPathOriginal . DIRECTORY_SEPARATOR . $fileName);
 
                 $cmdGetDuration = "$ffprobePath -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"$originalPath\" 2>&1";
 
