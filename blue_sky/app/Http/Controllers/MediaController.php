@@ -91,22 +91,6 @@ class MediaController extends Controller
                 ];
             });
 
-            function isInvalidDateTimeFormat($datetime)
-            {
-                // Regex para o formato: 2025-05-07T13:19:37
-                $pattern = '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/';
-                return !preg_match($pattern, $datetime);
-            }
-
-            if ($request->has('start_time') || $request->has('end_time')) {
-                if (isInvalidDateTimeFormat($request->input('start_time')) || isInvalidDateTimeFormat($request->input('end_time'))) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Data/hora em formato inválido!",
-                    ]);
-                }
-            }
-            
             return response()->json([
                 'success' => true,
                 'message' => 'dados recuperados com sucesso.',
