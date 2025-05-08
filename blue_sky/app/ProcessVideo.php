@@ -226,7 +226,8 @@ class ProcessVideo
                 //     // "-preset veryslow " .
                 //     "\"$destinationPath320/$fileName\"";
 
-                shell_exec("$cmd1080 && $cmd320");
+                shell_exec($cmd1080);
+                shell_exec($cmd320);
 
                 if (file_exists($destinationPath1080) && file_exists($destinationPath320)) {
 
