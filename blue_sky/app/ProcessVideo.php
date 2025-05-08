@@ -259,6 +259,11 @@ class ProcessVideo
                 //         'message' => 'Erro ao gerar as resoluções do vídeo.',
                 //     ]);
                 // }
+                Log::info($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName);
+                Log::info(file_exists($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName));
+
+                Log::info($destinationPath320 . DIRECTORY_SEPARATOR . $fileName);
+                Log::info(file_exists($destinationPath320 . DIRECTORY_SEPARATOR . $fileName));
 
                 if (!file_exists($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName) || !file_exists($destinationPath320 . DIRECTORY_SEPARATOR . $fileName)) {
 
@@ -269,7 +274,7 @@ class ProcessVideo
                         'message' => 'Erro ao gerar as resoluções do vídeo.',
                     ]);
                 } else {
-                    
+
                     if (file_exists($withFramePath)) {
                         unlink($withFramePath);
                     }
