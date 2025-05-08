@@ -224,7 +224,7 @@ class ProcessVideo
                 shell_exec("$cmd1080 && $cmd320");
                 // shell_exec($cmd320);
 
-                if (file_exists($destinationPath1080 . '/' . $fileName) || file_exists($destinationPath320 . '/' . $fileName)) {
+                if (file_exists($destinationPath1080 . '/' . $fileName) && file_exists($destinationPath320 . '/' . $fileName)) {
 
                     if (file_exists($withFramePath)) {
                         unlink($withFramePath);
