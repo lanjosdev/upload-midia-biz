@@ -226,10 +226,10 @@ class ProcessVideo
                 //     // "-preset veryslow " .
                 //     "\"$destinationPath320/$fileName\"";
 
-                shell_exec($cmd1080);
+                // shell_exec($cmd1080);
                 shell_exec($cmd320);
 
-                if (file_exists($destinationPath1080) && file_exists($destinationPath320)) {
+                if (/*file_exists($destinationPath1080) &&*/ file_exists($destinationPath320)) {
 
                     $pathOriginal = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'original' . DIRECTORY_SEPARATOR . $fileName;
                     $path1080 = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'videos_1080' . DIRECTORY_SEPARATOR . $fileName;
@@ -237,7 +237,7 @@ class ProcessVideo
                     
                     $data = [
                         'media_link_original' => asset($pathOriginal),
-                        'media_link_1080' => asset($path1080),
+                        'media_link_1080' => 'asset($path1080)',
                         'media_link_320' => asset($path320),
                         'fk_region_id' => $regionId,
                     ];
