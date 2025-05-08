@@ -226,7 +226,7 @@ class ProcessVideo
                 // shell_exec("$cmd1080 && $cmd320");
                 shell_exec($cmd1080);
 
-                if (file_exists($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName)) {
+                if (file_exists($destinationPath1080 . '/' . $fileName)) {
 
                     $data = [
                         'media_link_original' => '1080 funcionou',
