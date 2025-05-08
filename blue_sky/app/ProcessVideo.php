@@ -157,7 +157,7 @@ class ProcessVideo
 
                 $withFramePath = $destinationPathOriginal . '/temp_framed_' . $fileName;
 
-                $cmdFrame = "$ffmpegPath -y -i \"$originalPath\" -t 10 -r 30 -an -c:v libx264 -maxrate 10000k -bufsize 20000k -preset fast \"$withFramePath\" 2>&1";
+                $cmdFrame = "$ffmpegPath -y -i \"$originalPath\" -t 10 -r 30 -an -c:v libx264 -maxrate 10000k -bufsize 20000k -preset fast \"$withFramePath\"";
                 shell_exec($cmdFrame);
 
 
@@ -232,7 +232,7 @@ class ProcessVideo
 
                 // shell_exec($cmd320);
 
-                if (file_exists($destinationPath1080) /*&& file_exists($destinationPath320)*/) {
+                if (file_exists($destinationPath1080) /*&&file_exists($destinationPath320)*/) {
                     Log::info('existe e vai enviar');
                     $pathOriginal = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'original' . DIRECTORY_SEPARATOR . $fileName;
                     $path1080 = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'videos_1080' . DIRECTORY_SEPARATOR . $fileName;
