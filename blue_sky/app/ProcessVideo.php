@@ -165,11 +165,6 @@ class ProcessVideo
                 // $cmd320 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$moldura320Path\" -filter_complex \"[0:v]scale=320:480,crop=320:448:0:0[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath320/$fileName\"";
                 // $cmd1080 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v]scale=1080:1920:[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath1080/$fileName\"";
 
-                // $exit = "[1:v]format=rgba[moldura_alpha]; " .
-                //     "[bg][moldura_alpha]overlay=0:0[out]\" " .
-                //     "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
-                //     "-preset fast ";
-
                 $destinationPath1080 = $destinationPath1080 . DIRECTORY_SEPARATOR . $fileName;
 
                 $cmd1080 = "$ffmpegPath -y " .
@@ -187,25 +182,6 @@ class ProcessVideo
                     "-preset fast " .
                     // "-preset veryslow " .
                     "\"$destinationPath1080\"";
-
-
-                // $cmd1080 = "$ffmpegPath -y " .
-                //     "-i \"$withFramePath\" " .
-                //     "-i \"$molduraPath\" " .
-                //     "-filter_complex \"" .
-                //     "[0:v]scale=1080:1920[bg]; " .
-                //     "$exit " .
-                //     // "-preset veryslow " .
-                //     "\"$destinationPath1080/$fileName\"";
-
-                // $cmd320 = "$ffmpegPath -y " .
-                //     "-i \"$withFramePath\" " .
-                //     "-i \"$moldura320Path\" " .
-                //     "-filter_complex \"" .
-                //     "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
-                //     "$exit " .
-                //     // "-preset veryslow " .
-                //     "\"$destinationPath320/$fileName\"";
 
                 shell_exec($cmd1080);
 
@@ -267,83 +243,6 @@ class ProcessVideo
                         'message' => 'Erro ao gerar as resoluções do vídeo.',
                     ]);
                 }
-
-                // shell_exec($cmd320);
-
-                // if (file_exists($destinationPath1080 . '/' . $fileName) && file_exists($destinationPath320 . '/' . $fileName)) {
-
-                //     if (file_exists($withFramePath)) {
-                //         unlink($withFramePath);
-                //     }
-
-                //     $data = [
-                //         'media_link_original' => asset("/v1/videos/original/$fileName"),
-                //         'media_link_1080' => asset("/v1/videos/videos_1080/$fileName"),
-                //         'media_link_320' => asset("/v1/videos/videos_320/$fileName"),
-                //         'fk_region_id' => $regionId,
-                //     ];
-
-                //     if ($data) {
-
-                //         if (File::exists($video)) {
-                //             unlink($video);
-                //         }
-
-                //         return response()->json([
-                //             'success' => true,
-                //             'message' => 'success.',
-                //             'data' => $data
-                //         ]);
-                //     }
-                // } else {
-
-                //     $this->utils->deleteFilesIfExist($originalPath, $fileName, $destinationPath1080, $destinationPath320, $video);
-
-                //     return response()->json([
-                //         'success' => false,
-                //         'message' => 'Erro ao gerar as resoluções do vídeo.',
-                //     ]);
-                // }
-
-                // Log::info($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName);
-                // Log::info(file_exists($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName));
-
-                // Log::info($destinationPath320 . DIRECTORY_SEPARATOR . $fileName);
-                // Log::info(file_exists($destinationPath320 . DIRECTORY_SEPARATOR . $fileName));
-
-                // if (!file_exists($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName) || !file_exists($destinationPath320 . DIRECTORY_SEPARATOR . $fileName)) {
-
-                //     $this->utils->deleteFilesIfExist($originalPath, $fileName, $destinationPath1080, $destinationPath320, $video);
-
-                //     return response()->json([
-                //         'success' => false,
-                //         'message' => 'Erro ao gerar as resoluções do vídeo.',
-                //     ]);
-                // }
-
-                // if (file_exists($withFramePath)) {
-                //     unlink($withFramePath);
-                // }
-
-                // $data = [
-                //     'media_link_original' => asset("/v1/videos/original/$fileName"),
-                //     'media_link_1080' => asset("/v1/videos/videos_1080/$fileName"),
-                //     'media_link_320' => asset("/v1/videos/videos_320/$fileName"),
-                //     'fk_region_id' => $regionId,
-                // ];
-
-                // if ($data) {
-
-                //     if (File::exists($video)) {
-                //         unlink($video);
-                //     }
-
-                //     return response()->json([
-                //         'success' => true,
-                //         'message' => 'success.',
-                //         'data' => $data
-                //     ]);
-                // }
             }
         } catch (QueryException $qe) {
 

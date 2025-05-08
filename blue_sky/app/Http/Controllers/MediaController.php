@@ -66,7 +66,7 @@ class MediaController extends Controller
 
             $data->transform(function ($media) use ($resolutionsRequest) {
                 $allMedias = [
-                    ['resolution' => 'original', 'url' => $media->media_link_original],
+                    // ['resolution' => 'original', 'url' => $media->media_link_original],
                     ['resolution' => '1080p', 'url' => $media->media_link_1080],
                     ['resolution' => '320p', 'url' => $media->media_link_320],
                 ];
@@ -341,87 +341,12 @@ class MediaController extends Controller
     public function gatheringPiecesAndAddingToTheQueue(Request $request)
     {
         try {
-            // dd();
-            // $validatedData = $request->validate(
-            //     $this->media->rulesMedias(),
-            //     $this->media->feedbackMedias()
-            // );
-
-            // $user = $request->user();
-
-            // $regionId = $user->fk_region_id;
-
-            // // $resolutionScale1080 = '1080x1920';
-            // // $resolutionScale320 = '320x480';
-
-            // $folderTemp = 'temp';
-
-            // if (!File::exists($folderTemp)) {
-            //     File::makeDirectory(($folderTemp), 0775, true);
-            // }
-
-            // $video = $request->file('video');
-            // $fileName = uniqid() . '.' . $video->getClientOriginalExtension();
-            // $video->move($folderTemp, $fileName);
-
-            // $fullPath = $folderTemp . DIRECTORY_SEPARATOR . $fileName;
-            // $extension = $video->getClientOriginalExtension();
-            // $pathTemp = $video->getPathname();
-
-            // if ($validatedData && File::exists($fullPath)) {
-            //     ProcessVideoJob::dispatch($fullPath, $pathTemp, $extension, $regionId);
-
-            //     return response()->json([
-            //         'success' => true,
-            //         'message' => 'Vídeo entrou na fila.'
-            //     ]);
-            // }
-
-            // $validatedData = $request->validate(
-            //     $this->media->rulesMedias(),
-            //     $this->media->feedbackMedias()
-            // );
 
             $user = $request->user();
             $regionId = $user->fk_region_id;
 
             $filename = $request->input('filename');
             $totalChunks = (int) $request->input('totalChunks');
-
-            // $tmpDir = storage_path("app/chunks/$filename");
-            // $finalFolder = storage_path("app/public/videos");
-            // $finalPath = "$finalFolder/$filename";
-
-            // // Cria a pasta de destino se não existir
-            // if (!file_exists($finalFolder)) {
-            //     mkdir($finalFolder, 0777, true);
-            // }
-
-            // // Junta os chunks
-            // $out = fopen($finalPath, 'ab');
-
-            // for ($i = 0; $i < $totalChunks; $i++) {
-            //     $chunkPath = "$tmpDir/$i";
-            //     if (file_exists($chunkPath)) {
-            //         $in = fopen($chunkPath, 'rb');
-            //         stream_copy_to_stream($in, $out);
-            //         fclose($in);
-            //         unlink($chunkPath); // remove o chunk após usar
-            //     }
-            // }
-
-            // fclose($out);
-            // rmdir($tmpDir); // remove o diretório temporário de chunks
-
-            // $tempFolder = 'temp';
-
-            // if (!File::exists($tempFolder)) {
-            //     File::makeDirectory($tempFolder, 0775, true);
-            // }
-
-            // // move o vídeo finalizado para a pasta temp
-            // $fullPath = public_path($tempFolder . DIRECTORY_SEPARATOR . $filename);
-            // File::move($finalPath, $fullPath);
 
             $tmpDir = storage_path("app/chunks/$filename");
 
