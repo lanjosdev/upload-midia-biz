@@ -172,6 +172,8 @@ class ProcessVideo
                 //     "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
                 //     "-preset fast ";
 
+                $destinationPath1080 = $destinationPath1080 . DIRECTORY_SEPARATOR . $fileName;
+
                 $cmd1080 = "$ffmpegPath -y " .
                     "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
                     "-i \"$molduraPath\" " .                 // input 1: moldura com alpha
@@ -186,7 +188,7 @@ class ProcessVideo
                     // "-bufsize 20000k " .
                     "-preset fast " .
                     // "-preset veryslow " .
-                    "\"$destinationPath1080/$fileName\"";
+                    "\"$destinationPath1080\"";
 
                 // $cmd320 = "$ffmpegPath -y " .
                 //     "-i \"$withFramePath\" " .
@@ -226,7 +228,7 @@ class ProcessVideo
                 // shell_exec("$cmd1080 && $cmd320");
                 shell_exec($cmd1080);
 
-                if (file_exists($destinationPath1080 . '/' . $fileName)) {
+                if (file_exists($destinationPath1080)) {
 
                     $data = [
                         'media_link_original' => '1080 funcionou',
