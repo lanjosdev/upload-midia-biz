@@ -173,7 +173,7 @@ class ProcessVideo
                 //     "-preset fast ";
 
                 $destinationPath1080 = $destinationPath1080 . DIRECTORY_SEPARATOR . $fileName;
-                // $destinationPath320 = $destinationPath320 . DIRECTORY_SEPARATOR . $fileName;
+                $destinationPath320 = $destinationPath320 . DIRECTORY_SEPARATOR . $fileName;
 
                 $cmd1080 = "$ffmpegPath -y " .
                     "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
@@ -191,22 +191,22 @@ class ProcessVideo
                     // "-preset veryslow " .
                     "\"$destinationPath1080\"";
 
-                // $cmd320 = "$ffmpegPath -y " .
-                //     "-i \"$withFramePath\" " .
-                //     "-i \"$moldura320Path\" " .
-                //     "-filter_complex \"" .
-                //     "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
-                //     "[1:v]format=rgba[moldura_alpha]; " .
-                //     "[bg][moldura_alpha]overlay=0:0[out]\" " .
-                //     "-map \"[out]\" -t 10 -r 30 -an " .
-                //     "-c:v libx264 " .
-                //     // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
-                //     // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
-                //     // "-maxrate 10000k " .
-                //     // "-bufsize 20000k " .
-                //     "-preset fast " .
-                //     // "-preset veryslow " .
-                //     "\"$destinationPath320/$fileName\"";
+                $cmd320 = "$ffmpegPath -y " .
+                    "-i \"$withFramePath\" " .
+                    "-i \"$moldura320Path\" " .
+                    "-filter_complex \"" .
+                    "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
+                    "[1:v]format=rgba[moldura_alpha]; " .
+                    "[bg][moldura_alpha]overlay=0:0[out]\" " .
+                    "-map \"[out]\" -t 10 -r 30 -an " .
+                    "-c:v libx264 " .
+                    // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
+                    // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
+                    // "-maxrate 10000k " .
+                    // "-bufsize 20000k " .
+                    "-preset fast " .
+                    // "-preset veryslow " .
+                    "\"$destinationPath320\"";
 
                 // $cmd1080 = "$ffmpegPath -y " .
                 //     "-i \"$withFramePath\" " .
@@ -226,17 +226,18 @@ class ProcessVideo
                 //     // "-preset veryslow " .
                 //     "\"$destinationPath320/$fileName\"";
 
-                // shell_exec("$cmd1080 && $cmd320");
-                shell_exec($cmd1080);
+                shell_exec("$cmd1080 && $cmd320");
 
-                if (file_exists($destinationPath1080)) {
+                if (file_exists($destinationPath1080) && file_exists($destinationPath320)) {
 
-                    // $path = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'videos_1080' . DIRECTORY_SEPARATOR . $fileName;
-                    $path = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'videos_1080' . DIRECTORY_SEPARATOR . $fileName;
+                    $pathOriginal = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'original' . DIRECTORY_SEPARATOR . $fileName;
+                    $path1080 = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'videos_1080' . DIRECTORY_SEPARATOR . $fileName;
+                    $path320 = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'videos_320' . DIRECTORY_SEPARATOR . $fileName;
+                    
                     $data = [
-                        'media_link_original' => '1080 funcionou',
-                        'media_link_1080' => asset($path),
-                        'media_link_320' => "1080 funcionou",
+                        'media_link_original' => asset($pathOriginal),
+                        'media_link_1080' => asset($path1080),
+                        'media_link_320' => asset($path320),
                         'fk_region_id' => $regionId,
                     ];
 
