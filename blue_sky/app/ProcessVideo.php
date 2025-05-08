@@ -230,11 +230,15 @@ class ProcessVideo
 
                 shell_exec($cmd320);
 
-                if (file_exists($destinationPath1080) &&file_exists($destinationPath320)) {
-                    Log::info('existe e vai enviar');
+                if (file_exists($destinationPath1080) && file_exists($destinationPath320)) {
+
                     $pathOriginal = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'original' . DIRECTORY_SEPARATOR . $fileName;
                     $path1080 = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'videos_1080' . DIRECTORY_SEPARATOR . $fileName;
                     $path320 = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'videos_320' . DIRECTORY_SEPARATOR . $fileName;
+
+                    if (file_exists($withFramePath)) {
+                        unlink($withFramePath);
+                    }
 
                     $data = [
                         'media_link_original' => asset($pathOriginal),
@@ -245,6 +249,10 @@ class ProcessVideo
 
                     if ($data) {
 
+                        if (File::exists($video)) {
+                            unlink($video);
+                        }
+
                         return response()->json([
                             'success' => true,
                             'message' => 'success.',
@@ -252,8 +260,14 @@ class ProcessVideo
                         ]);
                     }
                 } else {
-                    Log::info('algo de errado aconteceu');
+                    $this->utils->deleteFilesIfExist($originalPath, $fileName, $destinationPath1080, $destinationPath320, $video);
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Erro ao gerar as resoluções do vídeo.',
+                    ]);
                 }
+
                 // shell_exec($cmd320);
 
                 // if (file_exists($destinationPath1080 . '/' . $fileName) && file_exists($destinationPath320 . '/' . $fileName)) {
