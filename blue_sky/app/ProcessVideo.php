@@ -165,50 +165,24 @@ class ProcessVideo
                 // $cmd320 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$moldura320Path\" -filter_complex \"[0:v]scale=320:480,crop=320:448:0:0[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath320/$fileName\"";
                 // $cmd1080 = "$ffmpegPath -y -noautorotate -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v]scale=1080:1920:[scaled];[scaled][1:v]overlay=0:0\" -b:v 9000k -minrate 9000k -maxrate 10000k -x264-params nal-hrd=cbr -bufsize 20000k -fs 20M -preset ultrafast \"$destinationPath1080/$fileName\"";
 
-                $exit = "[1:v]format=rgba[moldura_alpha]; " .
-                    "[bg][moldura_alpha]overlay=0:0[out]\" " .
-                    "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
-                    "-preset fast ";
-
-                // $cmd1080 = "$ffmpegPath -y " .
-                //     "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
-                //     "-i \"$molduraPath\" " .                 // input 1: moldura com alpha
-                //     "-filter_complex \"" .
-                //     "[0:v]scale=1080:1920[bg]; " .
-                //     "[1:v]format=rgba[moldura_alpha]; " .
+                // $exit = "[1:v]format=rgba[moldura_alpha]; " .
                 //     "[bg][moldura_alpha]overlay=0:0[out]\" " .
                 //     "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
-                //     // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
-                //     // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
-                //     // "-maxrate 10000k " .
-                //     // "-bufsize 20000k " .
-                //     "-preset fast " .
-                //     // "-preset veryslow " .
-                //     "\"$destinationPath1080/$fileName\"";
-
-                // $cmd320 = "$ffmpegPath -y " .
-                //     "-i \"$withFramePath\" " .
-                //     "-i \"$moldura320Path\" " .
-                //     "-filter_complex \"" .
-                //     "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
-                //     "[1:v]format=rgba[moldura_alpha]; " .
-                //     "[bg][moldura_alpha]overlay=0:0[out]\" " .
-                //     "-map \"[out]\" -t 10 -r 30 -an " .
-                //     "-c:v libx264 " .
-                //     // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
-                //     // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
-                //     // "-maxrate 10000k " .
-                //     // "-bufsize 20000k " .
-                //     "-preset fast " .
-                //     // "-preset veryslow " .
-                //     "\"$destinationPath320/$fileName\"";
+                //     "-preset fast ";
 
                 $cmd1080 = "$ffmpegPath -y " .
-                    "-i \"$withFramePath\" " .
-                    "-i \"$molduraPath\" " .
+                    "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
+                    "-i \"$molduraPath\" " .                 // input 1: moldura com alpha
                     "-filter_complex \"" .
                     "[0:v]scale=1080:1920[bg]; " .
-                    "$exit " .
+                    "[1:v]format=rgba[moldura_alpha]; " .
+                    "[bg][moldura_alpha]overlay=0:0[out]\" " .
+                    "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
+                    // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
+                    // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
+                    // "-maxrate 10000k " .
+                    // "-bufsize 20000k " .
+                    "-preset fast " .
                     // "-preset veryslow " .
                     "\"$destinationPath1080/$fileName\"";
 
@@ -217,56 +191,42 @@ class ProcessVideo
                     "-i \"$moldura320Path\" " .
                     "-filter_complex \"" .
                     "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
-                    "$exit " .
+                    "[1:v]format=rgba[moldura_alpha]; " .
+                    "[bg][moldura_alpha]overlay=0:0[out]\" " .
+                    "-map \"[out]\" -t 10 -r 30 -an " .
+                    "-c:v libx264 " .
+                    // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
+                    // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
+                    // "-maxrate 10000k " .
+                    // "-bufsize 20000k " .
+                    "-preset fast " .
                     // "-preset veryslow " .
                     "\"$destinationPath320/$fileName\"";
 
-                shell_exec("$cmd1080 && $cmd320");
-                // shell_exec($cmd320);
+                // $cmd1080 = "$ffmpegPath -y " .
+                //     "-i \"$withFramePath\" " .
+                //     "-i \"$molduraPath\" " .
+                //     "-filter_complex \"" .
+                //     "[0:v]scale=1080:1920[bg]; " .
+                //     "$exit " .
+                //     // "-preset veryslow " .
+                //     "\"$destinationPath1080/$fileName\"";
 
-                if (file_exists($destinationPath1080 . '/' . $fileName) && file_exists($destinationPath320 . '/' . $fileName)) {
+                // $cmd320 = "$ffmpegPath -y " .
+                //     "-i \"$withFramePath\" " .
+                //     "-i \"$moldura320Path\" " .
+                //     "-filter_complex \"" .
+                //     "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
+                //     "$exit " .
+                //     // "-preset veryslow " .
+                //     "\"$destinationPath320/$fileName\"";
 
-                    if (file_exists($withFramePath)) {
-                        unlink($withFramePath);
-                    }
+                // shell_exec("$cmd1080 && $cmd320");
+                shell_exec($cmd1080);
+                shell_exec($cmd320);
 
-                    $data = [
-                        'media_link_original' => asset("/v1/videos/original/$fileName"),
-                        'media_link_1080' => asset("/v1/videos/videos_1080/$fileName"),
-                        'media_link_320' => asset("/v1/videos/videos_320/$fileName"),
-                        'fk_region_id' => $regionId,
-                    ];
+                // if (file_exists($destinationPath1080 . '/' . $fileName) && file_exists($destinationPath320 . '/' . $fileName)) {
 
-                    if ($data) {
-
-                        if (File::exists($video)) {
-                            unlink($video);
-                        }
-
-                        return response()->json([
-                            'success' => true,
-                            'message' => 'success.',
-                            'data' => $data
-                        ]);
-                    }
-                } else {
-
-                    $this->utils->deleteFilesIfExist($originalPath, $fileName, $destinationPath1080, $destinationPath320, $video);
-
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Erro ao gerar as resoluções do vídeo.',
-                    ]);
-                }
-                // if (!file_exists($destinationPath1080 . '/' . $fileName) || !file_exists($destinationPath320 . '/' . $fileName)) {
-
-                //     $this->utils->deleteFilesIfExist($originalPath, $fileName, $destinationPath1080, $destinationPath320, $video);
-
-                //     return response()->json([
-                //         'success' => false,
-                //         'message' => 'Erro ao gerar as resoluções do vídeo.',
-                //     ]);
-                // } else {
                 //     if (file_exists($withFramePath)) {
                 //         unlink($withFramePath);
                 //     }
@@ -290,31 +250,74 @@ class ProcessVideo
                 //             'data' => $data
                 //         ]);
                 //     }
-                // }
+                // } else {
 
-                // if (file_exists($withFramePath)) {
-                //     unlink($withFramePath);
-                // }
-
-                // $data = [
-                //     'media_link_original' => asset("/v1/videos/original/$fileName"),
-                //     'media_link_1080' => asset("/v1/videos/videos_1080/$fileName"),
-                //     'media_link_320' => asset("/v1/videos/videos_320/$fileName"),
-                //     'fk_region_id' => $regionId,
-                // ];
-
-                // if ($data) {
-
-                //     if (File::exists($video)) {
-                //         unlink($video);
-                //     }
+                //     $this->utils->deleteFilesIfExist($originalPath, $fileName, $destinationPath1080, $destinationPath320, $video);
 
                 //     return response()->json([
-                //         'success' => true,
-                //         'message' => 'success.',
-                //         'data' => $data
+                //         'success' => false,
+                //         'message' => 'Erro ao gerar as resoluções do vídeo.',
                 //     ]);
                 // }
+
+                if (!file_exists($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName) || !file_exists($destinationPath320 . DIRECTORY_SEPARATOR . $fileName)) {
+
+                    $this->utils->deleteFilesIfExist($originalPath, $fileName, $destinationPath1080, $destinationPath320, $video);
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Erro ao gerar as resoluções do vídeo.',
+                    ]);
+                } else {
+                    
+                    if (file_exists($withFramePath)) {
+                        unlink($withFramePath);
+                    }
+
+                    $data = [
+                        'media_link_original' => asset("/v1/videos/original/$fileName"),
+                        'media_link_1080' => asset("/v1/videos/videos_1080/$fileName"),
+                        'media_link_320' => asset("/v1/videos/videos_320/$fileName"),
+                        'fk_region_id' => $regionId,
+                    ];
+
+                    if ($data) {
+
+                        if (File::exists($video)) {
+                            unlink($video);
+                        }
+
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'success.',
+                            'data' => $data
+                        ]);
+                    }
+                }
+
+                if (file_exists($withFramePath)) {
+                    unlink($withFramePath);
+                }
+
+                $data = [
+                    'media_link_original' => asset("/v1/videos/original/$fileName"),
+                    'media_link_1080' => asset("/v1/videos/videos_1080/$fileName"),
+                    'media_link_320' => asset("/v1/videos/videos_320/$fileName"),
+                    'fk_region_id' => $regionId,
+                ];
+
+                if ($data) {
+
+                    if (File::exists($video)) {
+                        unlink($video);
+                    }
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'success.',
+                        'data' => $data
+                    ]);
+                }
             }
         } catch (QueryException $qe) {
 
