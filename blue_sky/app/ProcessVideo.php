@@ -163,9 +163,9 @@ class ProcessVideo
                 if (file_exists($withFramePath)) {
                     
                     $data = [
-                        'media_link_original' => 'withFramePath',
-                        'media_link_1080' => "withFramePath",
-                        'media_link_320' => "withFramePath",
+                        'media_link_original' => 'withFramePath funcionou',
+                        'media_link_1080' => "withFramePath funcionou",
+                        'media_link_320' => "withFramePath funcionou",
                         'fk_region_id' => $regionId,
                     ];
     
