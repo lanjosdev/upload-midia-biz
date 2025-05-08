@@ -160,28 +160,7 @@ class ProcessVideo
                 $cmdFrame = "$ffmpegPath -y -i \"$originalPath\" -t 10 -r 30 -an -c:v libx264 -maxrate 10000k -bufsize 20000k -preset fast \"$withFramePath\"";
                 shell_exec($cmdFrame);
 
-                if (file_exists($withFramePath)) {
-                    
-                    $data = [
-                        'media_link_original' => 'withFramePath funcionou',
-                        'media_link_1080' => "withFramePath funcionou",
-                        'media_link_320' => "withFramePath funcionou",
-                        'fk_region_id' => $regionId,
-                    ];
-    
-                    if ($data) {
-    
-                        if (File::exists($video)) {
-                            unlink($video);
-                        }
-    
-                        return response()->json([
-                            'success' => true,
-                            'message' => 'success.',
-                            'data' => $data
-                        ]);
-                    }
-                }
+
 
                 // gerar resoluções (1080p e 320p)
                 ////////////////////////// $cmd1080 = "$ffmpegPath -y -i \"$withFramePath\" -i \"$molduraPath\" -filter_complex \"[0:v][1:v] overlay=0:0,scale=$resolutionScale1080\" \"$destinationPath1080/$fileName\"";
@@ -193,21 +172,21 @@ class ProcessVideo
                 //     "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
                 //     "-preset fast ";
 
-                // $cmd1080 = "$ffmpegPath -y " .
-                //     "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
-                //     "-i \"$molduraPath\" " .                 // input 1: moldura com alpha
-                //     "-filter_complex \"" .
-                //     "[0:v]scale=1080:1920[bg]; " .
-                //     "[1:v]format=rgba[moldura_alpha]; " .
-                //     "[bg][moldura_alpha]overlay=0:0[out]\" " .
-                //     "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
-                //     // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
-                //     // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
-                //     // "-maxrate 10000k " .
-                //     // "-bufsize 20000k " .
-                //     "-preset fast " .
-                //     // "-preset veryslow " .
-                //     "\"$destinationPath1080/$fileName\"";
+                $cmd1080 = "$ffmpegPath -y " .
+                    "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
+                    "-i \"$molduraPath\" " .                 // input 1: moldura com alpha
+                    "-filter_complex \"" .
+                    "[0:v]scale=1080:1920[bg]; " .
+                    "[1:v]format=rgba[moldura_alpha]; " .
+                    "[bg][moldura_alpha]overlay=0:0[out]\" " .
+                    "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
+                    // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
+                    // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
+                    // "-maxrate 10000k " .
+                    // "-bufsize 20000k " .
+                    "-preset fast " .
+                    // "-preset veryslow " .
+                    "\"$destinationPath1080/$fileName\"";
 
                 // $cmd320 = "$ffmpegPath -y " .
                 //     "-i \"$withFramePath\" " .
@@ -245,7 +224,30 @@ class ProcessVideo
                 //     "\"$destinationPath320/$fileName\"";
 
                 // shell_exec("$cmd1080 && $cmd320");
-                // shell_exec($cmd1080);
+                shell_exec($cmd1080);
+
+                if (file_exists($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName)) {
+
+                    $data = [
+                        'media_link_original' => '1080 funcionou',
+                        'media_link_1080' => "1080 funcionou",
+                        'media_link_320' => "1080 funcionou",
+                        'fk_region_id' => $regionId,
+                    ];
+
+                    if ($data) {
+
+                        if (File::exists($video)) {
+                            unlink($video);
+                        }
+
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'success.',
+                            'data' => $data
+                        ]);
+                    }
+                }
                 // shell_exec($cmd320);
 
                 // if (file_exists($destinationPath1080 . '/' . $fileName) && file_exists($destinationPath320 . '/' . $fileName)) {
@@ -282,7 +284,7 @@ class ProcessVideo
                 //         'message' => 'Erro ao gerar as resoluções do vídeo.',
                 //     ]);
                 // }
-                
+
                 Log::info($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName);
                 Log::info(file_exists($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName));
 
