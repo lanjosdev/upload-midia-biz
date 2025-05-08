@@ -52,8 +52,8 @@ class ProcessVideo
                 $ffprobePath = 'C:\\ffmpeg\\ffmpeg-master-latest-win64-gpl-shared\\bin\\ffprobe.exe';
                 $ffmpegPath = "C:\\ffmpeg\\ffmpeg-master-latest-win64-gpl-shared\\bin\\ffmpeg.exe";
             } else {
-                $ffprobePath = '/home/ubuntu/Projetos/midiaapi/ffmpeg6.1/ffprobe';
-                $ffmpegPath = '/home/ubuntu/Projetos/midiaapi/ffmpeg6.1/ffmpeg';
+                $ffprobePath = '/home/ubuntu/Projetos/midiaapi/backend/midia_api_video/blue_sky/bin/ffprobe';
+                $ffmpegPath = '/home/ubuntu/Projetos/midiaapi/backend/midia_api_video/blue_sky/bin/ffmpeg';
             }
 
             // if ($validatedData) {
