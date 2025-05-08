@@ -157,7 +157,7 @@ class ProcessVideo
 
                 $withFramePath = $destinationPathOriginal . '/temp_framed_' . $fileName;
 
-                $cmdFrame = "$ffmpegPath -y -i \"$originalPath\" -t 10 -r 30 -an -c:v libx264 -maxrate 10000k -bufsize 20000k -preset fast \"$withFramePath\"";
+                $cmdFrame = "$ffmpegPath -y -threads 1 -i \"$originalPath\" -t 10 -r 30 -an -c:v libx264 -maxrate 10000k -bufsize 20000k -preset fast \"$withFramePath\" 2>&1";
                 shell_exec($cmdFrame);
 
 
@@ -172,23 +172,23 @@ class ProcessVideo
                 //     "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
                 //     "-preset fast ";
 
-                // $destinationPath1080 = $destinationPath1080 . DIRECTORY_SEPARATOR . $fileName;
+                $destinationPath1080 = $destinationPath1080 . DIRECTORY_SEPARATOR . $fileName;
 
-                // $cmd1080 = "$ffmpegPath -y " .
-                //     "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
-                //     "-i \"$molduraPath\" " .                 // input 1: moldura com alpha
-                //     "-filter_complex \"" .
-                //     "[0:v]scale=1080:1920[bg]; " .
-                //     "[1:v]format=rgba[moldura_alpha]; " .
-                //     "[bg][moldura_alpha]overlay=0:0[out]\" " .
-                //     "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
-                //     // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
-                //     // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
-                //     // "-maxrate 10000k " .
-                //     // "-bufsize 20000k " .
-                //     "-preset fast " .
-                //     // "-preset veryslow " .
-                //     "\"$destinationPath1080\"";
+                $cmd1080 = "$ffmpegPath -y -threads 1 " .
+                    "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
+                    "-i \"$molduraPath\" " .                 // input 1: moldura com alpha
+                    "-filter_complex \"" .
+                    "[0:v]scale=1080:1920[bg]; " .
+                    "[1:v]format=rgba[moldura_alpha]; " .
+                    "[bg][moldura_alpha]overlay=0:0[out]\" " .
+                    "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 " .
+                    // "-b:v 9000k -minrate 9000k -maxrate 10000k " .
+                    // "-x264-params nal-hrd=cbr -bufsize 20000k -fs 20M " .
+                    // "-maxrate 10000k " .
+                    // "-bufsize 20000k " .
+                    "-preset fast " .
+                    // "-preset veryslow " .
+                    "\"$destinationPath1080\" 2>&1";
 
 
                 // $cmd1080 = "$ffmpegPath -y " .
@@ -209,11 +209,11 @@ class ProcessVideo
                 //     // "-preset veryslow " .
                 //     "\"$destinationPath320/$fileName\"";
 
-                // shell_exec($cmd1080);
+                shell_exec($cmd1080);
 
                 $destinationPath320 = $destinationPath320 . DIRECTORY_SEPARATOR . $fileName;
 
-                $cmd320 = "$ffmpegPath -y " .
+                $cmd320 = "$ffmpegPath -y -threads 1 " .
                     "-i \"$withFramePath\" " .
                     "-i \"$moldura320Path\" " .
                     "-filter_complex \"" .
@@ -228,11 +228,11 @@ class ProcessVideo
                     // "-bufsize 20000k " .
                     "-preset fast " .
                     // "-preset veryslow " .
-                    "\"$destinationPath320\"";
+                    "\"$destinationPath320\" 2>&1";
 
                 shell_exec($cmd320);
 
-                if (/*ile_exists($destinationPath1080) &&*/file_exists($destinationPath320)) {
+                if (file_exists($destinationPath1080) && file_exists($destinationPath320)) {
                     Log::info('existe e vai enviar');
                     $pathOriginal = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'original' . DIRECTORY_SEPARATOR . $fileName;
                     $path1080 = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'videos_1080' . DIRECTORY_SEPARATOR . $fileName;
@@ -240,7 +240,7 @@ class ProcessVideo
 
                     $data = [
                         'media_link_original' => asset($pathOriginal),
-                        'media_link_1080' => 'asset($path1080)',
+                        'media_link_1080' => asset($path1080),
                         'media_link_320' => asset($path320),
                         'fk_region_id' => $regionId,
                     ];
