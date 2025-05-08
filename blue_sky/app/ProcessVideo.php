@@ -238,6 +238,10 @@ class ProcessVideo
                 } else {
                     $this->utils->deleteFilesIfExist($originalPath, $fileName, $destinationPath1080, $destinationPath320, $video);
 
+                    if (File::exists($withFramePath)) {
+                        unlink($withFramePath);
+                    }
+
                     return response()->json([
                         'success' => false,
                         'message' => 'Erro ao gerar as resoluções do vídeo.',
@@ -248,6 +252,10 @@ class ProcessVideo
 
             $this->utils->deleteFilesIfExist($originalPath, $fileName, $destinationPath1080, $destinationPath320, $video);
 
+            if (File::exists($withFramePath)) {
+                unlink($withFramePath);
+            }
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error DB: ' . $qe->getMessage(),
@@ -255,6 +263,10 @@ class ProcessVideo
         } catch (Exception $e) {
 
             $this->utils->deleteFilesIfExist($originalPath, $fileName, $destinationPath1080, $destinationPath320, $video);
+
+            if (File::exists($withFramePath)) {
+                unlink($withFramePath);
+            }
 
             return response()->json([
                 'success' => false,
