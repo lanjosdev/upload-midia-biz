@@ -173,6 +173,7 @@ class ProcessVideo
                 //     "-preset fast ";
 
                 $destinationPath1080 = $destinationPath1080 . DIRECTORY_SEPARATOR . $fileName;
+                // $destinationPath320 = $destinationPath320 . DIRECTORY_SEPARATOR . $fileName;
 
                 $cmd1080 = "$ffmpegPath -y " .
                     "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
@@ -230,9 +231,11 @@ class ProcessVideo
 
                 if (file_exists($destinationPath1080)) {
 
+                    // $path = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'videos_1080' . DIRECTORY_SEPARATOR . $fileName;
+                    $path = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'videos_1080' . DIRECTORY_SEPARATOR . $fileName;
                     $data = [
                         'media_link_original' => '1080 funcionou',
-                        'media_link_1080' => "1080 funcionou",
+                        'media_link_1080' => asset($path),
                         'media_link_320' => "1080 funcionou",
                         'fk_region_id' => $regionId,
                     ];
