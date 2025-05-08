@@ -232,7 +232,6 @@ class ProcessVideo
                 shell_exec($cmd320);
 
                 if (file_exists($destinationPath1080) && file_exists($destinationPath320)) {
-
                     $pathOriginal = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'original' . DIRECTORY_SEPARATOR . $fileName;
                     $path1080 = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'videos_1080' . DIRECTORY_SEPARATOR . $fileName;
                     $path320 = DIRECTORY_SEPARATOR . 'v1' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . 'videos_320' . DIRECTORY_SEPARATOR . $fileName;
