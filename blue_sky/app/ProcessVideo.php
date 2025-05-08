@@ -223,7 +223,7 @@ class ProcessVideo
 
                 shell_exec("$cmd1080 && $cmd320");
                 // shell_exec($cmd320);
-
+                
                 if (!file_exists($destinationPath1080 . DIRECTORY_SEPARATOR . $fileName) || !file_exists($destinationPath320 . DIRECTORY_SEPARATOR . $fileName)) {
 
                     $this->utils->deleteFilesIfExist($originalPath, $fileName, $destinationPath1080, $destinationPath320, $video);
@@ -232,31 +232,55 @@ class ProcessVideo
                         'success' => false,
                         'message' => 'Erro ao gerar as resoluções do vídeo.',
                     ]);
-                }
-
-                if (file_exists($withFramePath)) {
-                    unlink($withFramePath);
-                }
-
-                $data = [
-                    'media_link_original' => asset("/v1/videos/original/$fileName"),
-                    'media_link_1080' => asset("/v1/videos/videos_1080/$fileName"),
-                    'media_link_320' => asset("/v1/videos/videos_320/$fileName"),
-                    'fk_region_id' => $regionId,
-                ];
-
-                if ($data) {
-
-                    if (File::exists($video)) {
-                        unlink($video);
+                }else {
+                    if (file_exists($withFramePath)) {
+                        unlink($withFramePath);
                     }
-
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'success.',
-                        'data' => $data
-                    ]);
+                    
+                    $data = [
+                        'media_link_original' => asset("/v1/videos/original/$fileName"),
+                        'media_link_1080' => asset("/v1/videos/videos_1080/$fileName"),
+                        'media_link_320' => asset("/v1/videos/videos_320/$fileName"),
+                        'fk_region_id' => $regionId,
+                    ];
+    
+                    if ($data) {
+    
+                        if (File::exists($video)) {
+                            unlink($video);
+                        }
+    
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'success.',
+                            'data' => $data
+                        ]);
+                    }
                 }
+
+                // if (file_exists($withFramePath)) {
+                //     unlink($withFramePath);
+                // }
+                
+                // $data = [
+                //     'media_link_original' => asset("/v1/videos/original/$fileName"),
+                //     'media_link_1080' => asset("/v1/videos/videos_1080/$fileName"),
+                //     'media_link_320' => asset("/v1/videos/videos_320/$fileName"),
+                //     'fk_region_id' => $regionId,
+                // ];
+
+                // if ($data) {
+
+                //     if (File::exists($video)) {
+                //         unlink($video);
+                //     }
+
+                //     return response()->json([
+                //         'success' => true,
+                //         'message' => 'success.',
+                //         'data' => $data
+                //     ]);
+                // }
             }
         } catch (QueryException $qe) {
 
