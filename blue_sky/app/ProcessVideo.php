@@ -173,8 +173,7 @@ class ProcessVideo
                 //     "-preset fast ";
 
                 $destinationPath1080 = $destinationPath1080 . DIRECTORY_SEPARATOR . $fileName;
-                $destinationPath320 = $destinationPath320 . DIRECTORY_SEPARATOR . $fileName;
-
+                
                 $cmd1080 = "$ffmpegPath -y " .
                     "-i \"$withFramePath\" " .               // input 0: vídeo de fundo
                     "-i \"$molduraPath\" " .                 // input 1: moldura com alpha
@@ -190,8 +189,8 @@ class ProcessVideo
                     "-preset fast " .
                     // "-preset veryslow " .
                     "\"$destinationPath1080\"";
-
-
+                    
+                    
                 // $cmd1080 = "$ffmpegPath -y " .
                 //     "-i \"$withFramePath\" " .
                 //     "-i \"$molduraPath\" " .
@@ -200,7 +199,7 @@ class ProcessVideo
                 //     "$exit " .
                 //     // "-preset veryslow " .
                 //     "\"$destinationPath1080/$fileName\"";
-
+                
                 // $cmd320 = "$ffmpegPath -y " .
                 //     "-i \"$withFramePath\" " .
                 //     "-i \"$moldura320Path\" " .
@@ -209,13 +208,15 @@ class ProcessVideo
                 //     "$exit " .
                 //     // "-preset veryslow " .
                 //     "\"$destinationPath320/$fileName\"";
-
+                
                 shell_exec($cmd1080);
-
+                
+                $destinationPath320 = $destinationPath320 . DIRECTORY_SEPARATOR . $fileName;
+                
                 $cmd320 = "$ffmpegPath -y " .
-                    "-i \"$withFramePath\" " .
-                    "-i \"$moldura320Path\" " .
-                    "-filter_complex \"" .
+                "-i \"$withFramePath\" " .
+                "-i \"$moldura320Path\" " .
+                "-filter_complex \"" .
                     "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
                     "[1:v]format=rgba[moldura_alpha]; " .
                     "[bg][moldura_alpha]overlay=0:0[out]\" " .
@@ -246,9 +247,9 @@ class ProcessVideo
 
                     if ($data) {
 
-                        if (File::exists($video)) {
-                            unlink($video);
-                        }
+                        // if (File::exists($video)) {
+                        //     unlink($video);
+                        // }
 
                         return response()->json([
                             'success' => true,
