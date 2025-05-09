@@ -77,9 +77,9 @@ class Utils
             // Enviar para o servidor Zabbix
             $zabbix_server = 'monitoramento.bizsys.com.br';
             $zabbix_port = '10051';
-            $zabbix_key_rj = 'Interação RJ - riodejaneiro';
-            $zabbix_key_pe = 'Interação Recife - recife';
-            $zabbix_key_ce = 'Interação Fortaleza - fortaleza';
+            $zabbix_key_rj = 'riodejaneiro';
+            $zabbix_key_pe = 'recife';
+            $zabbix_key_ce = 'fortaleza';
             $hostname = 'ceu-azul-7419';
 
             $cmd = "zabbix_sender -z $zabbix_server -p $zabbix_port -s \"$hostname\" -k \"$zabbix_key_ce\" -o $ce";
