@@ -36,20 +36,20 @@ class ProcessVideoJob implements ShouldQueue
     protected $regionId;
     protected $resolutionScale1080;
     protected $resolutionScale320;
-    protected $utils;
+    // protected $utils;
 
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($videoPath, $pathTemp, $extension, $regionId, Utils $utils)
+    public function __construct($videoPath, $pathTemp, $extension, $regionId)
     {
         $this->videoPath = $videoPath;
         $this->pathTemp = $pathTemp;
         $this->extension = $extension;
         $this->regionId = $regionId;
-        $this->utils = $utils;
+        // $this->utils = $utils;
         // $this->resolutionScale1080 = $resolutionScale1080;
         // $this->resolutionScale320 = $resolutionScale320;
     }
@@ -87,7 +87,7 @@ class ProcessVideoJob implements ShouldQueue
 
             DB::commit();
 
-            $this->utils->zabbix();
+            // $this->utils->zabbix();
             
         } catch (\Throwable $e) {
 
