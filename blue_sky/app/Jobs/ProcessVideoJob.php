@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Media;
 use App\ProcessVideo;
+use App\Service\Utils;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -35,18 +36,20 @@ class ProcessVideoJob implements ShouldQueue
     protected $regionId;
     protected $resolutionScale1080;
     protected $resolutionScale320;
+    protected $utils;
 
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($videoPath, $pathTemp, $extension, $regionId)
+    public function __construct($videoPath, $pathTemp, $extension, $regionId, Utils $utils)
     {
         $this->videoPath = $videoPath;
         $this->pathTemp = $pathTemp;
         $this->extension = $extension;
         $this->regionId = $regionId;
+        $this->utils = $utils;
         // $this->resolutionScale1080 = $resolutionScale1080;
         // $this->resolutionScale320 = $resolutionScale320;
     }
@@ -83,6 +86,9 @@ class ProcessVideoJob implements ShouldQueue
             ]);
 
             DB::commit();
+
+            $this->utils->zabbix();
+            
         } catch (\Throwable $e) {
 
             DB::rollBack();

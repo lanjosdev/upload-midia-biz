@@ -2,6 +2,10 @@
 
 namespace App\Service;
 
+use App\Models\Media;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+
 class Utils
 {
     //formata data e hora 
@@ -43,6 +47,52 @@ class Utils
 
         foreach ($pathsToDelete as $path) {
             unlink($path);
+        }
+    }
+
+    function zabbix()
+    {
+
+        $query = Media::select('fk_region_id')
+            ->selectRaw('COUNT(*) as media_original')
+            ->groupBy('fk_region_id')
+            ->get();
+
+        $array = [];
+
+        for ($i = 0; $i < count($query); $i++) {
+            $region = $query[$i]->fk_region_id;
+            $qtd_media = $query[$i]->media_original;
+
+            $array[] = [$region => $qtd_media];
+        }
+
+        $query = $array;
+
+        $ce = $query[0][1];
+        $pe = $query[1][2];
+        $rj = $query[2][3];
+
+        if (empty($query)) {
+            // Enviar para o servidor Zabbix
+            $zabbix_server = 'monitoramento.bizsys.com.br';
+            $zabbix_port = '10051';
+            $zabbix_key_rj = 'Interação RJ - riodejaneiro';
+            $zabbix_key_pe = 'Interação Recife - recife';
+            $zabbix_key_ce = 'Interação Fortaleza - fortaleza';
+            $hostname = 'ceu-azul-7419';
+
+            $cmd = "zabbix_sender -z $zabbix_server -p $zabbix_port -s \"$hostname\" -k \"$zabbix_key_ce\" -o $ce";
+            exec($cmd);
+            
+            $cmd = "zabbix_sender -z $zabbix_server -p $zabbix_port -s \"$hostname\" -k \"$zabbix_key_pe\" -o $pe";
+            exec($cmd);
+            
+            $cmd = "zabbix_sender -z $zabbix_server -p $zabbix_port -s \"$hostname\" -k \"$zabbix_key_rj\" -o $rj";
+            exec($cmd);
+            
+        } else {
+            echo "Nenhum resultado encontrado.";
         }
     }
 }
