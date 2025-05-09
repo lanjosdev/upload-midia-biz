@@ -87,7 +87,9 @@ class ProcessVideoJob implements ShouldQueue
 
             DB::commit();
 
-            zabbixJob::dispatch();
+            Log::info('Minha função foi chamada pela fila');
+            $result = zabbixJob::dispatch();
+            Log::info('Resultado do retorno da fila:', ['resultado' => $result]);
             
         } catch (\Throwable $e) {
 

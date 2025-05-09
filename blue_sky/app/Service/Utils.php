@@ -50,7 +50,7 @@ class Utils
         }
     }
 
-    function zabbix()
+    public function zabbix()
     {
 
         $query = Media::select('fk_region_id')
@@ -82,15 +82,14 @@ class Utils
             $zabbix_key_ce = 'fortaleza';
             $hostname = 'ceu-azul-7419';
 
-            $cmd = "zabbix_sender -z $zabbix_server -p $zabbix_port -s \"$hostname\" -k \"$zabbix_key_ce\" -o $ce";
-            exec($cmd);
-            
-            $cmd = "zabbix_sender -z $zabbix_server -p $zabbix_port -s \"$hostname\" -k \"$zabbix_key_pe\" -o $pe";
-            exec($cmd);
-            
-            $cmd = "zabbix_sender -z $zabbix_server -p $zabbix_port -s \"$hostname\" -k \"$zabbix_key_rj\" -o $rj";
-            exec($cmd);
-            
+            $cmd1 = "zabbix_sender -z $zabbix_server -p $zabbix_port -s \"$hostname\" -k \"$zabbix_key_ce\" -o $ce";
+            exec($cmd1);
+
+            $cmd2 = "zabbix_sender -z $zabbix_server -p $zabbix_port -s \"$hostname\" -k \"$zabbix_key_pe\" -o $pe";
+            exec($cmd2);
+
+            $cmd3 = "zabbix_sender -z $zabbix_server -p $zabbix_port -s \"$hostname\" -k \"$zabbix_key_rj\" -o $rj";
+            exec($cmd3);
         } else {
             echo "Nenhum resultado encontrado.";
         }
