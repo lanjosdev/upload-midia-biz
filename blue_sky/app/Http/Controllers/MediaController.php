@@ -29,6 +29,94 @@ class MediaController extends Controller
         $this->processVideo = $processVideo;
     }
 
+    public function download(Request $request)
+    {
+        try {
+            $resolutionsRequest = $request->has('resolution')
+                ? explode(',', $request->input('resolution'))
+                : null;
+
+            // $limit = $request->has('limit') && !empty($request->input('limit'))
+            //     ? intval($request->input('limit'))
+            //     : 50;
+
+            $data = Media::orderBy('created_at', 'desc')
+
+                // filtro por data inicial    
+                ->when($request->has('start_time'), function ($query) use ($request) {
+                    $query->where('created_at', '>=', $request->input('start_time'));
+                })
+
+                // filtro por data final
+                ->when($request->has('end_time'), function ($query) use ($request) {
+                    $query->where('created_at', '<=', $request->input('end_time'));
+                })
+
+                // filtro por uf
+                ->when($request->has('uf'), function ($query) use ($request) {
+                    $uf = explode(',', $request->input('uf'));
+                    $regionIds = Region::whereIn('state_uf', $uf)->pluck('id');
+                    $query->whereIn('fk_region_id', $regionIds);
+                })
+
+                // ->limit($limit)
+                ->get();
+            //paginate(50)
+            // ->appends($request->only(['uf', 'start_time', 'end_time', 'resolution']));
+
+            $data->transform(function ($media) use ($resolutionsRequest) {
+                $allMedias = [
+                    ['resolution' => 'original', 'url' => $media->media_link_original],
+                    ['resolution' => '1080p', 'url' => $media->media_link_1080],
+                    ['resolution' => '320p', 'url' => $media->media_link_320],
+                ];
+
+                if ($resolutionsRequest) {
+                    $allMedias = array_filter($allMedias, function ($item) use ($resolutionsRequest) {
+                        return in_array($item['resolution'], $resolutionsRequest) && !empty($item['url']);
+                    });
+                } else {
+                    $allMedias = array_filter($allMedias, function ($item) {
+                        return !empty($item['url']);
+                    });
+                }
+
+                $allMedias = array_values($allMedias);
+
+                return [
+                    'id' => $media->id,
+                    'uf' => optional($media->region)->state_uf ?? null,
+                    'created_at' => $this->utils->formattedDate($media, 'created_at') ?? null,
+                    'medias' => $allMedias,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'dados recuperados com sucesso.',
+                'data' => $data,
+                'count_data' => count($data)
+            ]);
+        } catch (QueryException $qe) {
+
+            Log::error('Error DB: ' . $qe->getMessage());
+
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Algo de errado aconteceu. Por favor, tente novamente mais tarde.',
+            ]);
+        } catch (Exception $e) {
+
+            Log::error('Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Algo de errado aconteceu. Por favor, tente novamente mais tarde.',
+            ]);
+        }
+    }
+
     public function getMedia(Request $request)
     {
         try {
