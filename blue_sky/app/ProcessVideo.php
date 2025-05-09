@@ -82,7 +82,7 @@ class ProcessVideo
 
                 $pathTmp = $pathTemp;
 
-                if ($extension == 'MOV') {
+                if ($extension == 'MOV' || $extension == 'mov') {
                     // Cria o caminho de saída temporário
                     $outputPath = storage_path('app/temp/' . uniqid() . '.mp4');
 
