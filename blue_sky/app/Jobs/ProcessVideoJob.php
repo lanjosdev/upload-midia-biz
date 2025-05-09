@@ -87,7 +87,7 @@ class ProcessVideoJob implements ShouldQueue
 
             DB::commit();
 
-            // $this->utils->zabbix();
+            zabbixJob::dispatch();
             
         } catch (\Throwable $e) {
 
