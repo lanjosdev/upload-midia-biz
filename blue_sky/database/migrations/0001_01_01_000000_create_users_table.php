@@ -43,19 +43,19 @@ return new class extends Migration
         DB::table('users')->insert([
             'name' => 'Fortaleza',
             'email' => 'ce@bizsys.com.br',
-            'password' => Hash::make('123456789'),
+            'password' => Hash::make('Fortaleza1726'),
             'fk_region_id' => 1,
         ]);
         DB::table('users')->insert([
             'name' => 'Recife',
             'email' => 'pe@bizsys.com.br',
-            'password' => Hash::make('123456789'),
+            'password' => Hash::make('Recife1537'),
             'fk_region_id' => 2,
         ]);
         DB::table('users')->insert([
             'name' => 'Rio de Janeiro',
             'email' => 'rj@bizsys.com.br',
-            'password' => Hash::make('123456789'),
+            'password' => Hash::make('RioDeJaneiro1565'),
             'fk_region_id' => 3,
         ]);
     }

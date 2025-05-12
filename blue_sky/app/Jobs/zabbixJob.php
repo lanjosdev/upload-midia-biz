@@ -51,7 +51,7 @@ class zabbixJob implements ShouldQueue
             $rj = $query[2][3];
 
             if (!empty($query)) {
-                // Enviar para o servidor Zabbix
+                
                 $zabbix_server = 'monitoramento.bizsys.com.br';
                 $zabbix_port = '10051';
                 $zabbix_key_rj = 'riodejaneiro';
