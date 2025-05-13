@@ -145,14 +145,14 @@ class ProcessVideo
                 $molduraPath = null;
 
                 if ($infoUsersLocationUf === 'CE') {
-                    $molduraPath = public_path('fortaleza1080.mov');
-                    $moldura320Path = public_path('fortaleza448_2.mov');
+                    $molduraPath = public_path('fortaleza1080new.mov');
+                    $moldura320Path = public_path('fortaleza448new.mov');
                 } elseif ($infoUsersLocationUf === 'PE') {
-                    $molduraPath = public_path('recife1080.mov');
-                    $moldura320Path = public_path('recife448_2.mov');
+                    $molduraPath = public_path('recife1080new.mov');
+                    $moldura320Path = public_path('recife448new.mov');
                 } else {
-                    $molduraPath = public_path('rj1080.mov');
-                    $moldura320Path = public_path('rj448_2.mov');
+                    $molduraPath = public_path('rj1080new.mov');
+                    $moldura320Path = public_path('rj448new.mov');
                 }
 
                 $withFramePath = $destinationPathOriginal . '/temp_framed_' . $fileName;
@@ -191,7 +191,8 @@ class ProcessVideo
                     "-i \"$withFramePath\" " .
                     "-i \"$moldura320Path\" " .
                     "-filter_complex \"" .
-                    "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
+                    // "[0:v]scale=320:480,crop=320:448:0:16[bg]; " .
+                    "[0:v]scale=320:-1,crop=320:448:(in_w-320)/2:(in_h-448)/2[bg]; " .
                     "[1:v]format=rgba[moldura_alpha]; " .
                     "[bg][moldura_alpha]overlay=0:0[out]\" " .
                     "-map \"[out]\" -t 10 -r 30 -an " .
@@ -203,6 +204,26 @@ class ProcessVideo
                     "-preset fast " .
                     // "-preset veryslow " .
                     "\"$destinationPath320\"";
+
+                // $cmd320 = "$ffmpegPath -y " .
+                //     "-i \"$withFramePath\" " .                 // vídeo base para overlay (ex: fundo)
+                //     "-i \"$moldura320Path\" " .      // vídeo com parte colorida + parte preta
+                //     "-filter_complex \"" .
+                //     // Separa a parte colorida (ex: lado esquerdo)
+                //     "[1:v]crop=320:448:0:0[color]; " .
+                //     // Separa a parte preta (máscara) (ex: lado direito)
+                //     "[1:v]crop=320:448:0:448,format=gray[alpha]; " .
+                //     // Junta colorido + alpha
+                //     "[color][alpha]alphamerge[molduraComAlpha]; " .
+                //     // Prepara o fundo
+                //     "[0:v]scale=320:480,crop=320:448:0:16[base]; " .
+                //     // Prepara a moldura com alpha
+                //     "[molduraComAlpha]setpts=PTS-STARTPTS[overlay]; " .
+                //     // Aplica a sobreposição
+                //     "[base][overlay]overlay=0:0[out]\" " .
+                //     "-map \"[out]\" -t 10 -r 30 -an -c:v libx264 -crf 18 -preset fast -pix_fmt yuv420p " .
+                //     "\"$destinationPath320\"";
+
 
                 shell_exec($cmd320);
 
