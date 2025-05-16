@@ -145,14 +145,14 @@ class ProcessVideo
                 $molduraPath = null;
 
                 if ($infoUsersLocationUf === 'CE') {
-                    $molduraPath = public_path('fortaleza1080_15_05.mov');
-                    $moldura320Path = public_path('fortaleza448_15_05.mov');
+                    $molduraPath = public_path('fortalezaQRCode1080_16_05.mov');
+                    $moldura320Path = public_path('fortalezaQRCode448_16_05.mov');
                 } elseif ($infoUsersLocationUf === 'PE') {
-                    $molduraPath = public_path('recife1080_15_05.mov');
-                    $moldura320Path = public_path('recife448_15_05.mov');
+                    $molduraPath = public_path('recifeQRCode1080_16_05.mov');
+                    $moldura320Path = public_path('recifeQRCode448_16_05.mov');
                 } else {
-                    $molduraPath = public_path('rj1080_15_05.mov');
-                    $moldura320Path = public_path('rj448_15_05.mov');
+                    $molduraPath = public_path('rjQRCode1080_16_05.mov');
+                    $moldura320Path = public_path('rjQRCode448_16_05.mov');
                 }
 
                 $withFramePath = $destinationPathOriginal . '/temp_framed_' . $fileName;
