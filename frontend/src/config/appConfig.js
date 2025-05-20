@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 // CONSTANTES:
 export const CONSTANTS_CONFIG = {
     // BASE_URL: 'http://localhost:5173',
-    BASE_URL: import.meta.env.VITE_APP_BASE_URL || 'https://testemidiaapi.bizsys.com.br',
+    BASE_URL: import.meta.env.VITE_APP_BASE_URL || 'https://midiaapi.rbiz.cc',
     COOKIE_CONFIG_NAME: import.meta.env.VITE_APP_COOKIE_CONFIG_NAME || 'configAppMidiaBiz',
 };
 // const BASE_URL = import.meta.env.VITE_APP_BASE_URL || 'https://testemidiaapi.bizsys.com.br';

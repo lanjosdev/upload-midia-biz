@@ -25,7 +25,6 @@ import { formatDecimal } from "../../utils/formatNumbers";
 
 // Estilo:
 import './style.css';
-import { replace } from "react-router-dom";
 
 
 
@@ -37,7 +36,7 @@ export default function Upload() {
         min: 10,
         max: 13
     };
-    const megabyteNominal = configsApp?.VIDEO.max_mb_video || 50;
+    const megabyteNominal = configsApp?.VIDEO.max_mb_video || 40;
     const megabyteLimit = megabyteNominal * 1024 * 1024;
     const infosNull = {
         name_file: null,
@@ -387,7 +386,7 @@ export default function Upload() {
                                     <div className="preview_empty">
                                         <p className="txt_emphasis bold">Selecione um vídeo para upload</p>
                                         <p>
-                                            Formato: 1080x1920 <br /> Duração: {durationLimits.min}-{durationLimits.max} segundos <br /> Extensão: .mp4 ou .mov <br /> Tamanho maximo: {megabyteNominal}MB
+                                            Formato: 1080x1920 <br /> Duração: {durationLimits.min} segundos <br /> Extensão: .mp4 ou .mov <br /> Tamanho maximo: {megabyteNominal}MB
                                         </p>
                                     </div>
                                 )

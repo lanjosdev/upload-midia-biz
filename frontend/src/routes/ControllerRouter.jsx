@@ -55,18 +55,14 @@ export default function ControllerRouter({ children }) {
                 }
             }
             catch(error) {
-                // if(error?.response?.data?.message == 'Unauthenticated.') {
-                //     console.error('Requisição não autenticada. Token Invalido!');
-
-                //     // remove token e profileDetails;
-                //     Cookies.remove('tokenEstoque');
-                //     setProfileDetails(null);
-                // }
-                // else {
-                //     console.error('Houve algum erro.');
-                // }
-
                 console.error('DETALHES DO ERRO: ', error);
+
+                if(error?.response?.statusText === "Internal Server Error") {
+
+                    // remove cookie-token e profileDetails;
+                    Cookies.remove(APP_CONSTANTS.AUTH_TOKEN_COOKIE_NAME)
+                    setProfileDetails(null);
+                }
             }
 
             setLoading(false);

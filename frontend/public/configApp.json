@@ -1,6 +1,6 @@
 {
     "VIDEO": {
-        "max_mb_video": 50,
+        "max_mb_video": 40,
         "duration_limits": {
             "min": 10,
             "max": 13

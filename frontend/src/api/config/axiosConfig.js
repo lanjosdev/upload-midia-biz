@@ -8,7 +8,7 @@ import { APP_CONSTANTS } from './constants';
 
 // Instância base do Axios para reutilização global
 const api = axios.create({
-  baseURL: APP_CONSTANTS.API_BASE_URL, // https://testemidiaapi.bizsys.com.br/v1/api
+  baseURL: APP_CONSTANTS.API_BASE_URL, // https://midiaapi.rbiz.cc/v1/api
   // timeout: 20000,
   headers: {
     'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response, 
   (error) => {
-    if(error.response?.status === 401) {
+    if(error?.response?.status === 401) {
       // Exemplo: redirecionar para login se token expirou
       Cookies.remove(APP_CONSTANTS.AUTH_TOKEN_COOKIE_NAME);
       window.location.href = '/';

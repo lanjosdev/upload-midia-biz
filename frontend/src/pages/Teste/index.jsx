@@ -1,21 +1,23 @@
 // Hooks / Libs:
-import { useEffect, useState, useRef } from "react";
-import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { toBlobURL, fetchFile } from "@ffmpeg/util";
+import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
+
+// CONTANTES:
+import { CONSTANTS_CONFIG } from "../../config/appConfig";
 
 // API:
-// import UploadService from "../../api/uploadService";
+import UploadService from "../../api/uploadService";
 
 // Contexts:
 // import UserContext from "../../contexts/userContext";
 
 // Components:
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { HeaderMenu } from "../../components/HeaderMenu/HeaderMenu";
 import { LoadingScreen } from "../../components/LoadingScreen/LoadingScreen";
 
 // Assets:
-// import imgEmpty from '../../assets/images/photo_empty.webp';
+import imgEmpty from '../../assets/images/photo_empty.webp';
 // import videoTest from '../../assets/video9_16.mp4';
 
 // Utils:
@@ -27,14 +29,37 @@ import './style.css';
 
 
 export default function Teste() {
-    const [loaded, setLoaded] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const ffmpegRef = useRef(new FFmpeg());
-    const videoRef = useRef(null);
-    const messageRef = useRef(null);
+    // Constantes do componente:
+    const configsApp = JSON.parse(Cookies.get(CONSTANTS_CONFIG.COOKIE_CONFIG_NAME) || null);
 
+    const durationLimits = configsApp?.VIDEO.duration_limits || {
+        min: 10,
+        max: 13
+    };
+    const megabyteNominal = configsApp?.VIDEO.max_mb_video || 50;
+    const megabyteLimit = megabyteNominal * 1024 * 1024;
+    const infosNull = {
+        name_file: null,
+        dimensions: null,
+        duration: null,
+        size: null
+    }; // { name_file: string | null, dimensions: {width: number, height: number}, duration: number, size: number }
+    const megabyteChunkNominal = configsApp?.UPLOAD.max_mb_chunk || 3;
+
+
+    // Estados do componente:
+    const [loadingFilePreview, setLoadingFilePreview] = useState(false);
+    const [loadingSubmit, setLoadingSubmit] = useState(false);
+    const [validationErrors, setValidationErrors] = useState([]);
+
+    // Logica UI:
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
+    const [infosVideo, setInfosVideo] = useState(infosNull); 
+
+    const [progress, setProgress] = useState(0); 
+    const [uploadSuccess, setUploadSuccess] = useState(false); 
+
 
 
 
@@ -48,148 +73,145 @@ export default function Teste() {
 
 
 
-    const load = async () => {
-        try {
-            setLoading(true);
-            const baseURL = "https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm";
-            const ffmpeg = ffmpegRef.current;
-            ffmpeg.on("log", ({ message }) => {
-                if (messageRef.current) messageRef.current.innerHTML = message;
-            });
-            ffmpeg.on("progress", (ratio) => {
-                if (messageRef.current) {
-                    messageRef.current.innerHTML = `Progress: ${ratio}`;
-                }
-                console.log(ratio);
-            });
-            // toBlobURL is used to bypass CORS issue, urls with the same
-            // domain can be used directly.
-            await ffmpeg.load({
-                coreURL: await toBlobURL(
-                    `${baseURL}/ffmpeg-core.js`,
-                    "text/javascript"
-                ),
-                wasmURL: await toBlobURL(
-                    `${baseURL}/ffmpeg-core.wasm`,
-                    "application/wasm"
-                ),
-                workerURL: await toBlobURL(
-                    `${baseURL}/ffmpeg-core.worker.js`,
-                    "text/javascript"
-                ),
-            });
-
-            setLoading(false);
-            setLoaded(true);
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
-    const watermark = async () => {
-        // const videoURL = "https://imersao-back.onrender.com/1746563705350-20250429_180246.mp4";
-        const ffmpeg = ffmpegRef.current;
-
-        await ffmpeg.writeFile("input.mp4", await fetchFile(selectedFile));
-        await ffmpeg.writeFile('arial.ttf', await fetchFile('https://raw.githubusercontent.com/ffmpegwasm/testdata/master/arial.ttf'));
-        await ffmpeg.exec([
-            "-i",
-            "input.mp4",
-            "-r 30",
-            "an",
-            "-vf",
-            "drawtext=fontfile=/arial.ttf:text='Lucas':x=(w-text_w)/2:y=(h-text_h)/2:fontsize=50:fontcolor=white",
-            "output.mp4",
-        ]);
-
-        const fileData = await ffmpeg.readFile("output.mp4");
-        // const data = new Uint8Array(fileData as ArrayBuffer);
-        const data = new Uint8Array(fileData.buffer); // sem "as"
-
-        const fileCompressed = new Blob([data.buffer], { type: "video/mp4" });
-        console.log(fileCompressed)
-        if(videoRef.current) {
-            videoRef.current.src = URL.createObjectURL(fileCompressed);
-        }
-    };
-    
-
-    function resetCurrentData(exceptFile=false) {
-        if(previewUrl) {
-            URL.revokeObjectURL(previewUrl);
-        }
-        setPreviewUrl(null);
-        // setInfosVideo(infosNull);
-        if(!exceptFile) {
-            setSelectedFile(null);
-        }
-        // setProgress(0);
-    }
-
-    function handleChangeFile(e) {
-        const file = e.target.files?.[0] || null;
-
-        // VALIDAÇÕES MINIMAS:
-        if(!file) return;
-
-
-        console.log(file);
-        try {
-            const fileUrl = URL.createObjectURL(file);
-            setSelectedFile(file)
-            setPreviewUrl(fileUrl);
-
-        }
-        catch(error) {
-            console.error(error);
-            
-            resetCurrentData();
-        }
-    }
 
 
 
     return (
-        <div
-        style={{
-            margin: "auto",
-            padding: "20px",
-        }}
-        >
-            {loaded ? (
-                <>
-                <video
-                style={{
-                    height: "500px",
-                }}
-                ref={videoRef}
-                src={previewUrl}
-                controls
-                >
-                </video>
+        <div className="Page Upload">
 
-                <br />
+            <HeaderMenu />
 
-                <p ref={messageRef}></p>
+            <main className='mainPage Upload grid'>
+                <div className="main_top">
+                    <h1>Upload de Vídeo</h1>
+                </div>
 
-                <button className="btn primary" onClick={watermark}>Add Watermark</button>
 
-                <label className="btn cancel">
-                    <input className="none" 
-                    type="file"
-                    accept="video/mp4" 
-                    onChange={handleChangeFile} 
-                    />
+                <div className="VideoUploader">
+                    {/* Área de pré-visualização */}
+                    <div className="container_preview">
+                        <div className="preview">
+                            {/* Apenas para deixar o elemento na proporção dinamica de 9:16 */}
+                            <img src={imgEmpty} alt="" />
+                            
+                            {loadingFilePreview ? (
+                                <div className="preview_empty">
+                                    <p>Carregando a pré-visualização...</p>
+                                </div>
+                            ) : (
+                                previewUrl ? (
+                                    <video className="preview_video"
+                                    src={previewUrl}
+                                    controls={true}
+                                    muted={true}
+                                    // onLoadedMetadata={handleVideoLoad(função que é executada ao carregar video do preview, ai é possivel ver os dados)}
+                                    />
+                                ) : (
+                                    <div className="preview_empty">
+                                        <p className="txt_emphasis bold">Selecione um vídeo para upload</p>
+                                        <p>
+                                            Formato: 1080x1920 <br /> Duração: {durationLimits.min}-{durationLimits.max} segundos <br /> Extensão: .mp4 ou .mov <br /> Tamanho maximo: {megabyteNominal}MB
+                                        </p>
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    </div>
 
-                    Selecione um vídeo
-                </label>
+                    {/* Informações do vídeo */}
+                    {selectedFile && (
+                    <div className="container_infos">
+                        <div className="infos">
+                            {infosVideo?.name_file && (
+                                <p className="filename"><span>Arquivo:</span> {infosVideo.name_file}</p>
+                            )}
+                            {infosVideo?.dimensions && (
+                                <p><span>Dimensões:</span> {infosVideo.dimensions.width}x{infosVideo.dimensions.height}</p>
+                            )}
+                            {infosVideo?.duration && (
+                                <p><span>Duração:</span> {infosVideo.duration} segundos</p>
+                            )}
+                            {infosVideo?.size && (
+                                <p><span>Tamanho:</span> {infosVideo.size} MB</p>
+                            )}
+                        </div>
+                    </div>
+                    )}
 
-                </>
-            ) : (
-                <>
-                {loading && <p>Loading ffmpeg-core...</p>}
-                <button className="btn primary" onClick={load}>Load ffmpeg-core</button>
-                </>
+                    {/* Mensagens de validação */}
+                    {validationErrors.length > 0 && (
+                    <div className="msg_feedback error">
+                        {validationErrors.map((item, idx)=> (
+                            <p className="item" key={idx}>
+                                <i className="bi bi-exclamation-circle"></i>
+                                <span> {item}</span>
+                            </p>
+                        ))}
+                    </div>
+                    )}
+
+
+
+                    {/* Controle de ações */}
+                    <div className="container_btns">
+                        <label className="btn cancel" disabled={loadingFilePreview || loadingSubmit}>
+                            <input className="none" 
+                            type="file"
+                            accept="video/mp4" 
+                            onChange={handleChangeFile} 
+                            disabled={loadingFilePreview || loadingSubmit}
+                            />
+
+                            Selecione um vídeo
+                        </label>
+
+                        {/* <button className="btn primary"
+                        onClick={handleUploadVideo}
+                        disabled={!selectedFile || validationErrors.length > 0 || loadingFilePreview || loadingSubmit || uploadSuccess}
+                        >
+                            {loadingSubmit ? 
+                                <span>Enviando...</span>
+                            : uploadSuccess ? (
+                                <span><i className="bi bi-check-circle-fill"></i> Enviado (Tempo: {timeFileFull}s)</span>
+                            ) : (
+                                <span>Upload vídeo inteiro</span>
+                            )}
+                        </button> */}
+                        
+                        {/* <button className="btn primary"
+                        onClick={handleUploadVideoNode}
+                        disabled={!selectedFile || validationErrors.length > 0 || loadingFilePreview || loadingSubmit || uploadSuccessNode}
+                        >
+                            {loadingSubmit ? 
+                                <span>Enviando...</span>
+                            : uploadSuccessNode ? (
+                                <span><i className="bi bi-check-circle-fill"></i> Enviado no Render (Tempo: {timeFileNode}s)</span>
+                            ) : (
+                                <span>Upload vídeo inteiro (Render)</span>
+                            )}
+                        </button> */}
+
+                        <button className={`btn ${uploadSuccess ? 'success' : 'primary'}`}
+                        onClick={handleUploadVideoChunks}
+                        disabled={!selectedFile || validationErrors.length > 0 || loadingFilePreview || loadingSubmit || uploadSuccess}
+                        >
+                            {loadingSubmit ? 
+                                <span>Enviando...</span>
+                            : uploadSuccess ? (
+                                <span><i className="bi bi-check-circle-fill"></i> Upload feito</span>
+                            ) : (
+                                <span>Fazer upload</span>
+                            )}
+                        </button>
+                    </div>
+                </div>
+
+
+
+            </main>
+
+            {loadingSubmit && (
+                <LoadingScreen textFeedback={`Realizando upload do vídeo (${progress}%)`} />
             )}
         </div>
     );

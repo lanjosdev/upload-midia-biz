@@ -1,5 +1,5 @@
 export const APP_CONSTANTS = {
-    API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://testemidiaapi.bizsys.com.br/v1/api',
+    API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://midiaapi.rbiz.cc/v1/api',
     AUTH_TOKEN_COOKIE_NAME: import.meta.env.VITE_APP_AUTH_TOKEN_NAME || 'authTokenMidiaBiz'
 };
   
